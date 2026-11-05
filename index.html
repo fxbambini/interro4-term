@@ -1,0 +1,641 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="QCM d'entraînement : exponentielle, limites, dérivées et nombre dérivé (Terminale spécialité maths).">
+<title>Entraînement exponentielle et limites</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box}
+html{color-scheme:light}
+body{margin:0}
+[hidden]{display:none!important}
+img{max-width:100%}
+/* Layout: une copie à petits carreaux, une question à la fois, marge rouge à gauche de la carte */
+:root{
+  --paper:#f5f7fb; --grid:rgba(36,70,181,.075); --surface:#ffffff; --ink:#1b2440; --muted:#59637f;
+  --line:#d8deeb; --pen:#2446b5; --pen-ink:#ffffff; --pen-soft:#e8edfb; --margin:#d0483f;
+  --ok:#1b7a4b; --ok-soft:#e2f3e9; --ko:#b3372f; --ko-soft:#fbe8e6; --warn-soft:#fff4d6; --warn:#7a5a00;
+  --font-display:"Young Serif", Georgia, "Times New Roman", serif;
+  --font-body:"Atkinson Hyperlegible", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono:"IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --paper:#10141e; --grid:rgba(140,165,255,.06); --surface:#181e2c; --ink:#e3e8f5; --muted:#9aa4c0;
+  --line:#2c3449; --pen:#8ea7ff; --pen-ink:#0f1524; --pen-soft:#212b46; --margin:#e27870;
+  --ok:#62cc94; --ok-soft:#163223; --ko:#f28c83; --ko-soft:#3b1f1d; --warn-soft:#352b10; --warn:#f0cf6e;
+  color-scheme:dark } }
+:root[data-theme="dark"]{
+  --paper:#10141e; --grid:rgba(140,165,255,.06); --surface:#181e2c; --ink:#e3e8f5; --muted:#9aa4c0;
+  --line:#2c3449; --pen:#8ea7ff; --pen-ink:#0f1524; --pen-soft:#212b46; --margin:#e27870;
+  --ok:#62cc94; --ok-soft:#163223; --ko:#f28c83; --ko-soft:#3b1f1d; --warn-soft:#352b10; --warn:#f0cf6e;
+  color-scheme:dark }
+
+body{
+  background-color:var(--paper); color:var(--ink); font-family:var(--font-body); font-size:16px; line-height:1.55;
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);
+  background-size:20px 20px;
+}
+.wrap{max-width:780px;margin:0 auto;padding-block:32px 64px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:flex;flex-direction:column;gap:22px}
+header{display:flex;flex-direction:column;gap:8px}
+.eyebrow{font-family:var(--font-mono);font-size:.74rem;letter-spacing:.09em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--font-display);font-weight:400;font-size:clamp(1.6rem,4.2vw,2.2rem);line-height:1.15;margin:0;text-wrap:balance}
+.lede{margin:0;color:var(--muted);max-width:62ch}
+.toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-top:4px}
+.serie{font-family:var(--font-mono);font-size:.8rem;color:var(--muted)}
+
+.dots{display:flex;flex-wrap:wrap;gap:6px}
+.dot{width:32px;height:32px;border-radius:50%;border:1.5px solid var(--line);background:var(--surface);color:var(--muted);font-family:var(--font-mono);font-size:.8rem;cursor:pointer;font-variant-numeric:tabular-nums;padding:0}
+.dot:hover{border-color:var(--pen);color:var(--ink)}
+.dot.ok{background:var(--ok);border-color:var(--ok);color:var(--surface)}
+.dot.ko{background:var(--ko);border-color:var(--ko);color:var(--surface)}
+.dot.cur{outline:2px solid var(--pen);outline-offset:2px}
+.dot.end{width:auto;padding:0 12px;border-radius:16px}
+
+.card{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:22px 22px 22px 46px;display:flex;flex-direction:column;gap:18px;box-shadow:0 1px 0 rgba(0,0,0,.03)}
+.card::before{content:"";position:absolute;top:0;bottom:0;left:28px;width:1.5px;background:var(--margin);opacity:.75}
+.qhead{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px}
+.qnum{font-family:var(--font-mono);font-size:.8rem;color:var(--muted);font-variant-numeric:tabular-nums}
+.chip{font-size:.78rem;letter-spacing:.03em;padding:3px 10px;border-radius:999px;background:var(--pen-soft);color:var(--pen);font-weight:700}
+.prompt{font-size:1.08rem;line-height:1.65;min-width:0;overflow-x:auto}
+.prompt p{margin:0 0 .5em}
+.prompt p:last-child{margin:0}
+
+.opts{display:flex;flex-direction:column;gap:10px}
+.opt{display:grid;grid-template-columns:30px 1fr;gap:12px;align-items:start;text-align:left;width:100%;background:var(--surface);color:var(--ink);border:1.5px solid var(--line);border-radius:8px;padding:12px 14px;font:inherit;cursor:pointer;transition:border-color .15s,background .15s}
+.opt:hover:not([disabled]){border-color:var(--pen);background:var(--pen-soft)}
+.opt[disabled]{cursor:default}
+.opt .l{width:28px;height:28px;border-radius:50%;border:1.5px solid currentColor;display:grid;place-items:center;font-family:var(--font-mono);font-size:.8rem;color:var(--muted)}
+.opt .t{min-width:0;overflow-x:auto;padding-top:2px}
+.opt.good{border-color:var(--ok);background:var(--ok-soft)}
+.opt.good .l{color:var(--ok);border-color:var(--ok)}
+.opt.bad{border-color:var(--ko);background:var(--ko-soft)}
+.opt.bad .l{color:var(--ko);border-color:var(--ko)}
+.opt.dim{opacity:.6}
+.why{display:block;margin-top:6px;font-size:.92rem;color:var(--ko)}
+
+.panel{border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0;overflow-x:auto}
+.panel h3{margin:0;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;font-family:var(--font-mono);font-weight:500}
+.panel p{margin:0}
+.hint{background:var(--warn-soft);color:var(--ink)}
+.hint h3{color:var(--warn)}
+.feedback{background:var(--pen-soft)}
+.feedback h3{color:var(--pen)}
+.verdict{font-weight:700}
+.verdict.ok{color:var(--ok)} .verdict.ko{color:var(--ko)}
+
+.actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.spacer{flex:1}
+.btn{font:inherit;font-weight:700;border-radius:8px;padding:10px 16px;cursor:pointer;border:1.5px solid var(--line);background:var(--surface);color:var(--ink)}
+.btn:hover{border-color:var(--pen)}
+.btn.primary{background:var(--pen);border-color:var(--pen);color:var(--pen-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn[disabled]{opacity:.45;cursor:default}
+button:focus-visible{outline:2.5px solid var(--pen);outline-offset:2px}
+.keys{font-size:.82rem;color:var(--muted)}
+.keys kbd{font-family:var(--font-mono);font-size:.75rem;border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:0 5px;background:var(--surface)}
+
+.score{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.score .big{font-family:var(--font-display);font-size:3rem;line-height:1;font-variant-numeric:tabular-nums}
+.score .sub{color:var(--muted)}
+.themes{display:flex;flex-direction:column;gap:10px}
+.trow{display:grid;grid-template-columns:minmax(0,1fr) 120px 48px;gap:12px;align-items:center}
+.trow .bar{height:8px;border-radius:4px;background:var(--line);overflow:hidden}
+.trow .bar i{display:block;height:100%;background:var(--pen)}
+.trow .n{font-family:var(--font-mono);font-size:.82rem;text-align:right;color:var(--muted);font-variant-numeric:tabular-nums}
+.missed{display:flex;flex-wrap:wrap;gap:8px}
+.missed button{font:inherit;font-size:.9rem;border:1.5px solid var(--ko);color:var(--ko);background:var(--ko-soft);border-radius:999px;padding:4px 12px;cursor:pointer}
+h2{font-family:var(--font-display);font-weight:400;font-size:1.25rem;margin:0}
+.foot{font-size:.85rem;color:var(--muted)}
+
+mjx-container{max-width:100%}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden}
+@media (max-width:480px){
+  .card{padding:18px 16px 18px 34px}
+  .card::before{left:18px}
+  .trow{grid-template-columns:minmax(0,1fr) 70px 40px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <span class="eyebrow">Terminale · Spécialité maths</span>
+    <h1>Entraînement : exponentielle, limites et dérivées</h1>
+    <p class="lede">16 questions dans l'esprit du contrôle. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
+    <div class="toolbar"><span class="serie" id="serie"></span><button class="btn" data-new>Nouvelle série</button></div>
+  </header>
+  <nav class="dots" id="dots" aria-label="Questions"></nav>
+  <main class="card" id="view" aria-live="polite"></main>
+  <p class="keys">Raccourcis : <kbd>A</kbd>–<kbd>D</kbd> pour répondre, <kbd>→</kbd> question suivante, <kbd>←</kbd> précédente.</p>
+</div>
+
+<script>
+window.MathJax = {
+  tex: { inlineMath: [['$', '$']], displayMath: [['$$', '$$']] },
+  svg: { fontCache: 'global' },
+  startup: { typeset: false, ready() { MathJax.startup.defaultReady(); MathJax.startup.promise.then(() => typesetView()); } }
+};
+</script>
+<script>
+const R = String.raw;
+const rint = (a,b) => a + Math.floor(Math.random()*(b-a+1));
+const pick = a => a[Math.floor(Math.random()*a.length)];
+const nz = (a,b) => { let v; do { v = rint(a,b); } while (v === 0); return v; };
+const gcd = (a,b) => { a=Math.abs(a); b=Math.abs(b); while(b){ [a,b]=[b,a%b]; } return a; };
+const fr = (n,d) => { if(d<0){ n=-n; d=-d; } const g=gcd(n,d)||1; n/=g; d/=g; if(n===0) return '0'; if(d===1) return `${n}`; return (n<0?'-':'') + R`\dfrac{${Math.abs(n)}}{${d}}`; };
+const cx = (k,v='x') => k===1 ? v : k===-1 ? '-'+v : `${k}${v}`;
+const sg = n => n===0 ? '' : n>0 ? `+${n}` : `${n}`;
+const st = (k,v='x') => k>0 ? '+'+cx(k,v) : cx(k,v);
+const lin = (a,b) => cx(a)+sg(b);
+const xm = a => a>0 ? `x-${a}` : `x+${-a}`;
+const E = s => R`\mathrm{e}^{${s}}`;
+const ev = n => n===1 ? R`\mathrm{e}` : R`\mathrm{e}^{${n}}`;
+const PINF = R`+\infty`, MINF = R`-\infty`, GE = R`\geqslant`, LE = R`\leqslant`;
+const I = (l,r,lc=']',rc='[') => R`\left${lc}${l}\,;${r}\right${rc}`;
+const m = s => `$${s}$`;
+const RPLUS = I(0,PINF);
+
+/* 1. Limite d'un quotient en un point, d'un côté */
+function gLimQuot(){
+  const a=nz(-3,4), right=Math.random()<.5, neg=Math.random()<.35;
+  const num=E(neg?'-x':'x'), nv=ev(neg?-a:a);
+  const cond=right?`x>${a}`:`x<${a}`, z=right?'0^+':'0^-';
+  const res=right?PINF:MINF, oth=right?MINF:PINF;
+  return { theme:'Limites',
+    q:R`<p>Calculer $\displaystyle\lim_{\substack{x\to ${a}\\ ${cond}}} \dfrac{${num}}{${xm(a)}}$.</p>`,
+    opts:[
+      {t:m(res), ok:true},
+      {t:m(oth), why:R`Pour $${cond}$, on a $${xm(a)}${right?'>':'<'}0$ : le dénominateur tend vers $${z}$.`},
+      {t:m(nv), why:R`On ne peut pas remplacer $x$ par $${a}$ : le dénominateur s'annule.`},
+      {t:m('0'), why:R`Un numérateur qui tend vers un réel strictement positif, divisé par un dénominateur qui tend vers $0$, donne une limite infinie.`}],
+    hint:R`Cherche la limite du numérateur, puis celle du dénominateur <b>avec son signe</b>.`,
+    expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${xm(a)}\to${z}$. Par quotient, la limite vaut $${res}$.`};
+}
+
+/* 2. Forme indéterminée : taux d'accroissement de exp en 0 */
+function gTaux(){
+  const k=pick([1,2,3,5]);
+  const ex = k===1 ? R`\frac{1}{x}` : R`\frac{${k}}{x}`;
+  const opts=[
+    {t:m(k), ok:true},
+    {t:m('0'), why:R`$x\to+\infty$ et $\mathrm{e}^{${ex}}-1\to0$ : c'est une forme indéterminée « $\infty\times0$ », on ne peut pas conclure directement.`},
+    {t:m(PINF), why:R`Le facteur $x$ ne l'emporte pas ici : il faut lever l'indétermination.`},
+    k===1 ? {t:m(R`\mathrm{e}`), why:R`Le nombre dérivé de $\exp$ en $0$ vaut $\mathrm{e}^0=1$, pas $\mathrm{e}$.`}
+          : {t:m('1'), why:R`Il ne faut pas oublier le facteur $${k}$ : avec $X=${ex}$, on a $x=\dfrac{${k}}{X}$.`}];
+  const expl = k===1
+    ? R`Posons $X=\dfrac1x$ : quand $x\to+\infty$, $X\to0^+$ et $x\left(\mathrm{e}^{\frac1x}-1\right)=\dfrac{\mathrm{e}^{X}-1}{X}=\dfrac{\mathrm{e}^{0+X}-\mathrm{e}^{0}}{X}$, qui tend vers $\exp'(0)=\mathrm{e}^0=1$.`
+    : R`Posons $X=\dfrac{${k}}{x}$ : quand $x\to+\infty$, $X\to0^+$ et $x=\dfrac{${k}}{X}$. Donc $x\left(\mathrm{e}^{${ex}}-1\right)=${k}\times\dfrac{\mathrm{e}^{X}-1}{X}$. Or $\dfrac{\mathrm{e}^{X}-1}{X}=\dfrac{\mathrm{e}^{0+X}-\mathrm{e}^{0}}{X}\to\exp'(0)=1$, donc la limite vaut $${k}$.`;
+  return { theme:'Limites',
+    q:R`<p>Calculer $\displaystyle\lim_{x\to+\infty} x\left(\mathrm{e}^{${ex}}-1\right)$.</p>`,
+    opts, hint:R`Pose $X=${ex}$ et reconnais un taux d'accroissement de la fonction exponentielle en $0$.`, expl };
+}
+
+/* 3. Limite en +inf avec exp(k/x) : continuité */
+function gExpCont(){
+  const k=rint(1,4), mm=rint(1,4), s=pick(['+','-']), c=nz(-3,3);
+  const expr=R`\exp\left(\dfrac{${k}}{x}\right)${s}\dfrac{${mm}}{x}${sg(c)}`;
+  return { theme:'Limites',
+    q:R`<p>Calculer $\displaystyle\lim_{x\to+\infty} \left(${expr}\right)$.</p>`,
+    opts:[
+      {t:m(1+c), ok:true},
+      {t:m(c), why:R`$\exp\left(\frac{${k}}{x}\right)$ tend vers $\mathrm{e}^0=1$, pas vers $0$.`},
+      {t:m(ev(k)+sg(c)), why:R`Quand $x\to+\infty$, $\dfrac{${k}}{x}$ tend vers $0$, pas vers $${k}$.`},
+      {t:m(PINF), why:R`Chaque terme a une limite finie : il n'y a pas de forme indéterminée ici.`}],
+    hint:R`Cherche la limite de $\dfrac{${k}}{x}$, puis utilise $\mathrm{e}^0=1$.`,
+    expl:R`Quand $x\to+\infty$, $\dfrac{${k}}{x}\to0$ et $\dfrac{${mm}}{x}\to0$. Comme $\exp$ est continue en $0$, $\exp\left(\frac{${k}}{x}\right)\to\mathrm{e}^0=1$. Par somme, la limite vaut $1+0${sg(c)}=${1+c}$.`};
+}
+
+/* 4. Asymptote verticale : exp(x)/(x^2-c^2) */
+function gAsymV(){
+  const c=rint(1,5), dom=pick(['L','M','R']);
+  const p = dom==='L' ? -c : dom==='R' ? c : pick([-c,c]);
+  const D = dom==='L' ? I(MINF,-c) : dom==='R' ? I(c,PINF) : I(-c,c);
+  const inside = dom==='M', c2=c*c, z=inside?'0^-':'0^+', res=inside?MINF:PINF, oth=inside?PINF:MINF;
+  const sgnTxt = inside ? R`$x^2<${c2}$, donc $x^2-${c2}<0$` : R`$x^2>${c2}$, donc $x^2-${c2}>0$`;
+  const nv=ev(p);
+  return { theme:'Limites',
+    q:R`<p>On considère $f$ définie sur $${D}$ par $f(x)=\dfrac{\mathrm{e}^{x}}{x^2-${c2}}$.</p><p>Quelle est la limite de $f$ en $${p}$, et comment l'interpréter ?</p>`,
+    opts:[
+      {t:R`$${res}$ ; la droite d'équation $x=${p}$ est asymptote verticale à $\mathcal{C}_f$.`, ok:true},
+      {t:R`$${oth}$ ; la droite d'équation $x=${p}$ est asymptote verticale à $\mathcal{C}_f$.`, why:R`Sur $${D}$, ${sgnTxt} : le dénominateur tend vers $${z}$.`},
+      {t:R`$${res}$ ; la droite d'équation $y=${p}$ est asymptote horizontale à $\mathcal{C}_f$.`, why:R`Une limite infinie quand $x$ tend vers un réel $a$ donne une asymptote <b>verticale</b> d'équation $x=a$.`},
+      {t:R`$0$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_f$.`, why:R`C'est le dénominateur qui tend vers $0$, pas le quotient.`}],
+    hint:R`Le signe de $x^2-${c2}$ se lit dans un tableau de signes : racines $-${c}$ et $${c}$, positif à l'extérieur des racines.`,
+    expl:R`Le numérateur tend vers $${nv}>0$. Sur $${D}$, ${sgnTxt}, donc le dénominateur tend vers $${z}$. Par quotient, $\lim\limits_{x\to${p}}f(x)=${res}$ : la droite d'équation $x=${p}$ est asymptote verticale à $\mathcal{C}_f$.`};
+}
+
+/* 5. Asymptote horizontale */
+function gAsymH(){
+  const k=rint(1,3), b=rint(1,9), minus=Math.random()<.5;
+  const ek = minus ? cx(k) : cx(-k), num=E(ek), dir = minus ? MINF : PINF;
+  return { theme:'Limites',
+    q:R`<p>On considère $f$ définie sur $\mathbb{R}$ par $f(x)=\dfrac{${num}}{x^2+${b}}$.</p><p>Que vaut $\displaystyle\lim_{x\to${dir}}f(x)$, et comment l'interpréter ?</p>`,
+    opts:[
+      {t:R`$0$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_f$ en $${dir}$.`, ok:true},
+      {t:R`$0$ ; la droite d'équation $x=0$ est asymptote verticale à $\mathcal{C}_f$.`, why:R`Une limite finie $\ell$ en $\pm\infty$ donne une asymptote <b>horizontale</b> d'équation $y=\ell$.`},
+      {t:m(PINF), why:R`Quand $x\to${dir}$, c'est $${num}$ qui tend vers $0$, tandis que le dénominateur tend vers $+\infty$.`},
+      {t:`On ne peut pas conclure : c'est une forme indéterminée.`, why:R`« $\frac{0}{+\infty}$ » n'est pas une forme indéterminée : le quotient tend vers $0$.`}],
+    hint:R`Que vaut $\lim\limits_{x\to${dir}}${num}$ ? Et $\lim\limits_{x\to${dir}}\left(x^2+${b}\right)$ ?`,
+    expl:R`Quand $x\to${dir}$, $${ek}\to-\infty$ donc $${num}\to0$, et $x^2+${b}\to+\infty$. Par quotient, la limite vaut $0$ : l'axe des abscisses est asymptote horizontale à $\mathcal{C}_f$ en $${dir}$.`};
+}
+
+/* 6. Méthode de la position relative */
+function gMethod(){
+  return { theme:'Position relative',
+    q:R`<p>Pour étudier la position de la courbe $\mathcal{C}_f$ par rapport à une droite $\Delta$ d'équation $y=ax+b$, que faut-il étudier ?</p>`,
+    opts:[
+      {t:R`Le signe de $f(x)-(ax+b)$.`, ok:true},
+      {t:R`Le signe de $f'(x)$.`, why:R`Le signe de $f'$ donne les variations de $f$, pas sa position par rapport à une droite.`},
+      {t:R`La limite de $f(x)-(ax+b)$ en $+\infty$.`, why:R`Cette limite dit si $\Delta$ est asymptote, pas la position sur tout l'intervalle.`},
+      {t:R`Le signe de $f(x)$.`, why:R`Le signe de $f(x)$ donne seulement la position par rapport à l'axe des abscisses.`}],
+    hint:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ quand l'ordonnée du point de la courbe est plus grande que celle du point de la droite.`,
+    expl:R`On étudie le signe de la différence $d(x)=f(x)-(ax+b)$ : si $d(x)>0$, $\mathcal{C}_f$ est au-dessus de $\Delta$ ; si $d(x)<0$, elle est en dessous ; si $d(x)=0$, elles se coupent.`};
+}
+
+/* 7. Inéquation exponentielle */
+function gIneq(){
+  const k=nz(-4,4), b=rint(-3,3), rel=pick([GE,LE,'>','<']);
+  const flip={[GE]:LE,[LE]:GE,'>':'<','<':'>'};
+  const rel2 = k>0 ? rel : flip[rel], bnd=fr(-b,k), u=lin(k,b), bad=fr(1-b,k);
+  const big = (rel===GE || rel==='>');
+  const note = k<0 ? R` On divise par $${k}<0$ : le sens de l'inégalité change.` : '';
+  return { theme:'Position relative',
+    q:R`<p>Résoudre dans $\mathbb{R}$ l'inéquation $\mathrm{e}^{${u}}-1${rel}0$.</p>`,
+    opts:[
+      {t:R`Les solutions sont les réels $x${rel2}${bnd}$.`, ok:true},
+      {t:R`Les solutions sont les réels $x${flip[rel2]}${bnd}$.`, why: k>0 ? R`La fonction exponentielle est croissante : elle conserve le sens de l'inégalité, et $${k}>0$ aussi.` : R`Le sens change une seule fois : quand on divise par $${k}<0$.`},
+      {t:R`Les solutions sont les réels $x${rel2}${bad}$.`, why:R`$1=\mathrm{e}^{0}$, pas $\mathrm{e}^{1}$ : on doit résoudre $${u}${rel}0$.`},
+      {t: big ? `Tous les réels sont solutions, car une exponentielle est strictement positive.` : `Aucun réel n'est solution, car une exponentielle est strictement positive.`, why:R`$\mathrm{e}^{${u}}>0$ ne dit rien sur le signe de $\mathrm{e}^{${u}}-1$.`}],
+    hint:R`Écris $1$ sous la forme $\mathrm{e}^{\dots}$.`,
+    expl:R`La fonction exponentielle est strictement croissante, donc $\mathrm{e}^{${u}}-1${rel}0\iff\mathrm{e}^{${u}}${rel}\mathrm{e}^{0}\iff${u}${rel}0\iff x${rel2}${bnd}$.${note} Les solutions sont les réels $x${rel2}${bnd}$.`};
+}
+
+/* 8. Position relative complète */
+function gPos(){
+  const k=nz(-3,3), mm=nz(-3,3), q=rint(-5,5), change=Math.random()<.7, r=change?-1:rint(1,3), p=q+r;
+  const kx=cx(k), fT=R`\mathrm{e}^{${kx}}${st(mm)}${sg(p)}`, dT=lin(mm,q);
+  const above = k>0 ? I(0,PINF) : I(MINF,0), below = k>0 ? I(MINF,0) : I(0,PINF);
+  const d = change ? R`\mathrm{e}^{${kx}}-1` : R`\mathrm{e}^{${kx}}+${r}`;
+  const xs = k>0 ? 'x>0' : 'x<0';
+  const base = { theme:'Position relative',
+    q:R`<p>On considère $f(x)=${fT}$ sur $\mathbb{R}$ et la droite $\Delta$ d'équation $y=${dT}$.</p><p>Quelle est la position de $\mathcal{C}_f$ par rapport à $\Delta$ ?</p>`,
+    hint:R`Calcule $f(x)-(${dT})$, puis étudie son signe.` };
+  if(change) return { ...base,
+    opts:[
+      {t:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${above}$, en dessous sur $${below}$, et elles se coupent au point $(0\,;${q})$.`, ok:true},
+      {t:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${below}$, en dessous sur $${above}$.`, why:R`$\mathrm{e}^{${kx}}>1\iff${kx}>0\iff${xs}$.`},
+      {t:R`$\mathcal{C}_f$ est toujours au-dessus de $\Delta$, car une exponentielle est strictement positive.`, why:R`La différence vaut $${d}$, pas $\mathrm{e}^{${kx}}$.`},
+      {t:R`$\mathcal{C}_f$ est toujours en dessous de $\Delta$.`, why:R`La différence $${d}$ change de signe en $0$.`}],
+    expl:R`$f(x)-(${dT})=${d}$. Or $${d}>0\iff\mathrm{e}^{${kx}}>\mathrm{e}^{0}\iff${kx}>0\iff${xs}$. Donc $\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${above}$, en dessous sur $${below}$, et elles se coupent en $x=0$, au point $(0\,;${q})$.` };
+  return { ...base,
+    opts:[
+      {t:R`$\mathcal{C}_f$ est toujours strictement au-dessus de $\Delta$ : elles n'ont aucun point commun.`, ok:true},
+      {t:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${above}$, en dessous sur $${below}$.`, why:R`La différence vaut $${d}$ : c'est la somme de deux nombres strictement positifs.`},
+      {t:R`$\mathcal{C}_f$ est toujours en dessous de $\Delta$.`, why:R`La différence $${d}$ est strictement positive.`},
+      {t:R`$\mathcal{C}_f$ et $\Delta$ se coupent au point d'abscisse $0$.`, why:R`En $0$, la différence vaut $\mathrm{e}^0+${r}=${1+r}\neq0$.`}],
+    expl:R`$f(x)-(${dT})=${d}$. Comme $\mathrm{e}^{${kx}}>0$, on a $${d}>${r}>0$ pour tout réel $x$ : $\mathcal{C}_f$ est toujours strictement au-dessus de $\Delta$.` };
+}
+
+/* 9. Variations d'une racine */
+function gSqrtVar(){
+  const linear=Math.random()<.6, b=rint(1,9);
+  let u, up, fp, sign, f1, posTxt;
+  if(linear){
+    const a=rint(2,5); u=R`${a}x+${b}`; up=`${a}`;
+    fp = R`\dfrac{${a}}{2\sqrt{${u}}}` + (a%2===0 ? R`=\dfrac{${a/2}}{\sqrt{${u}}}` : '');
+    sign='>0'; f1=R`$f(0)=\sqrt{${b}}<f(1)=\sqrt{${a+b}}$, donc $f$ est croissante.`;
+    posTxt=R`Le dénominateur est strictement positif, donc $f'(x)>0$ : $f$ est croissante sur $\left[0\,;+\infty\right[$.`;
+  } else {
+    u=R`x^2+${b}`; up='2x'; fp=R`\dfrac{2x}{2\sqrt{${u}}}=\dfrac{x}{\sqrt{${u}}}`;
+    sign=R`\geqslant0`; f1=R`$f(0)=\sqrt{${b}}<f(1)=\sqrt{${1+b}}$, donc $f$ est croissante.`;
+    posTxt=R`Pour $x\geqslant0$, le numérateur est positif et le dénominateur strictement positif, donc $f'(x)\geqslant0$ (nul seulement en $0$) : $f$ est croissante sur $\left[0\,;+\infty\right[$.`;
+  }
+  return { theme:'Variations',
+    q:R`<p>On considère $f$ définie sur $\left[0\,;+\infty\right[$ par $f(x)=\sqrt{${u}}$, dérivable sur cet intervalle.</p><p>Quelle rédaction démontre correctement que $f$ est croissante ?</p>`,
+    opts:[
+      {t:R`Pour $x\geqslant0$, $f'(x)=${fp}${sign}$, donc $f$ est croissante.`, ok:true},
+      {t:R`Pour $x\geqslant0$, $f'(x)=\dfrac{1}{2\sqrt{${u}}}>0$, donc $f$ est croissante.`, why:R`La dérivée de $\sqrt{u}$ est $\dfrac{u'}{2\sqrt{u}}$ : ici $u'(x)=${up}$, ce facteur manque. La conclusion est juste, mais le calcul est faux.`},
+      {t:R`Pour tout $x\geqslant0$, $f(x)\geqslant0$, donc $f$ est croissante.`, why:R`Une fonction positive n'est pas forcément croissante.`},
+      {t:f1, why:R`Comparer deux valeurs ne suffit pas à prouver qu'une fonction est croissante.`}],
+    hint:R`$(\sqrt{u})'=\dfrac{u'}{2\sqrt{u}}$. Quel est $u'$ ici ?`,
+    expl:R`Avec $u(x)=${u}$, $u'(x)=${up}$, donc $f'(x)=\dfrac{u'(x)}{2\sqrt{u(x)}}=${fp}$. ${posTxt}`};
+}
+
+/* 10. Dérivée de exp(u) */
+function gDerExp(){
+  const k=nz(-3,3);
+  const specs=[
+    { D:RPLUS, u:R`\sqrt{x}`, up:R`\dfrac{1}{2\sqrt{x}}`, ans:R`\dfrac{\mathrm{e}^{\sqrt{x}}}{2\sqrt{x}}`,
+      ds:[[R`\mathrm{e}^{\sqrt{x}}`, R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ : il manque $u'$.`],
+          [R`\sqrt{x}\,\mathrm{e}^{\sqrt{x}-1}`, R`Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`],
+          [R`\mathrm{e}^{\frac{1}{2\sqrt{x}}}`, R`On multiplie par $u'$ ; on ne le met pas dans l'exposant.`]] },
+    { D:R`\mathbb{R}`, u:cx(k,'x^2'), up:cx(2*k), ans:R`${cx(2*k)}\,\mathrm{e}^{${cx(k,'x^2')}}`,
+      ds:[[E(cx(k,'x^2')), R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ : il manque $u'$.`],
+          [R`${cx(k,'x^2')}\,\mathrm{e}^{${cx(k,'x^2')}-1}`, R`Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`],
+          [E(cx(2*k)), R`On multiplie par $u'$ ; on ne le met pas dans l'exposant.`]] },
+    { D:RPLUS, u:R`\frac{1}{x}`, up:R`-\dfrac{1}{x^2}`, ans:R`-\dfrac{\mathrm{e}^{\frac{1}{x}}}{x^2}`,
+      ds:[[R`\mathrm{e}^{\frac{1}{x}}`, R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ : il manque $u'$.`],
+          [R`\dfrac{\mathrm{e}^{\frac{1}{x}}}{x^2}`, R`Attention au signe : $\left(\dfrac1x\right)'=-\dfrac{1}{x^2}$.`],
+          [R`\mathrm{e}^{-\frac{1}{x^2}}`, R`On multiplie par $u'$ ; on ne le met pas dans l'exposant.`]] }];
+  const s=pick(specs);
+  return { theme:'Dérivées',
+    q:R`<p>Sur $${s.D}$, quelle est la dérivée de $x\mapsto\mathrm{e}^{${s.u}}$ ?</p>`,
+    opts:[{t:m(s.ans), ok:true}, ...s.ds.map(([t,why])=>({t:m(t), why}))],
+    hint:R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ avec $u(x)=${s.u}$.`,
+    expl:R`Avec $u(x)=${s.u}$, $u'(x)=${s.up}$, donc la dérivée est $u'(x)\,\mathrm{e}^{u(x)}=${s.ans}$.`};
+}
+
+/* fonction quotient partagée par les questions 11 et 12 */
+function gFun(g){
+  const {t,k}=g, kS = k===1 ? '' : `${k}`;
+  if(t==='A'){ const u=R`${kS}\sqrt{x}`; return {t,k,kS,u,expo:u,g:R`\dfrac{\mathrm{e}^{${u}}}{\sqrt{x}}`,den:R`\sqrt{x}`}; }
+  const kx=cx(k); return {t,k,kS,kx,expo:kx,g:R`\dfrac{\mathrm{e}^{${kx}}}{x}`,den:'x'};
+}
+
+/* 11. Dérivée d'un quotient */
+function gQuot(ctx){
+  const F=gFun(ctx), q=R`<p>On considère $g$ définie sur $\left]0\,;+\infty\right[$ par $g(x)=${F.g}$.</p><p>Quelle est l'expression de $g'(x)$, sous la forme d'une seule fraction avec un numérateur factorisé ?</p>`;
+  if(F.t==='A'){ const u=F.u, eu=E(u);
+    return { theme:'Dérivées', q,
+      opts:[
+        {t:R`$g'(x)=\dfrac{${eu}\left(${u}-1\right)}{2x\sqrt{x}}$`, ok:true},
+        {t:R`$g'(x)=\dfrac{${eu}\left(${u}+1\right)}{2x\sqrt{x}}$`, why:R`La formule est $\dfrac{u'v-uv'}{v^2}$ : attention au signe moins.`},
+        {t:R`$g'(x)=\dfrac{${eu}\left(${u}-1\right)}{2x}$`, why:R`Le numérateur $u'v-uv'$ vaut $\dfrac{${eu}\left(${u}-1\right)}{2\sqrt x}$ : il reste un $\sqrt x$ au dénominateur après la division par $v^2=x$.`},
+        F.k===1 ? {t:R`$g'(x)=\mathrm{e}^{\sqrt{x}}$`, why:R`On ne dérive pas un quotient en dérivant séparément le numérateur et le dénominateur.`}
+                : {t:R`$g'(x)=\dfrac{${eu}\left(\sqrt{x}-1\right)}{2x\sqrt{x}}$`, why:R`$u'(x)=\dfrac{${F.k}\,${eu}}{2\sqrt x}$ : il manque le facteur $${F.k}$.`}],
+      hint:R`$u(x)=${eu}$ et $v(x)=\sqrt x$. Calcule $u'$ avec $(\mathrm{e}^{w})'=w'\,\mathrm{e}^{w}$, puis mets $${eu}$ en facteur.`,
+      expl:R`$u(x)=${eu}$, $u'(x)=\dfrac{${F.kS}${eu}}{2\sqrt x}$ ; $v(x)=\sqrt x$, $v'(x)=\dfrac{1}{2\sqrt x}$. Alors $u'v-uv'=\dfrac{${F.kS}${eu}}{2}-\dfrac{${eu}}{2\sqrt x}=\dfrac{${eu}\left(${u}-1\right)}{2\sqrt x}$. En divisant par $v^2=x$ : $g'(x)=\dfrac{${eu}\left(${u}-1\right)}{2x\sqrt x}$.` };
+  }
+  const kx=F.kx, ek=E(kx);
+  return { theme:'Dérivées', q,
+    opts:[
+      {t:R`$g'(x)=\dfrac{${ek}\left(${kx}-1\right)}{x^2}$`, ok:true},
+      {t:R`$g'(x)=\dfrac{${ek}\left(${kx}+1\right)}{x^2}$`, why:R`La formule est $\dfrac{u'v-uv'}{v^2}$ : attention au signe moins.`},
+      {t:R`$g'(x)=\dfrac{${ek}\left(${kx}-1\right)}{x}$`, why:R`On divise par $v^2=x^2$, pas par $x$.`},
+      {t:R`$g'(x)=${F.kS}${ek}$`, why:R`On ne dérive pas un quotient en dérivant séparément le numérateur et le dénominateur.`}],
+    hint:R`$u(x)=${ek}$ et $v(x)=x$. Applique $\left(\dfrac{u}{v}\right)'=\dfrac{u'v-uv'}{v^2}$, puis mets $${ek}$ en facteur.`,
+    expl:R`$u(x)=${ek}$, $u'(x)=${F.kS}${ek}$ ; $v(x)=x$, $v'(x)=1$. Alors $u'v-uv'=${kx}\,${ek}-${ek}=${ek}\left(${kx}-1\right)$. En divisant par $v^2=x^2$ : $g'(x)=\dfrac{${ek}\left(${kx}-1\right)}{x^2}$.` };
+}
+
+/* 12. Limite en 0 du quotient */
+function gLim0(ctx){
+  const F=gFun(ctx);
+  return { theme:'Limites',
+    q:R`<p>Avec $g(x)=${F.g}$ sur $\left]0\,;+\infty\right[$, quelle est la limite de $g$ en $0$, et comment l'interpréter ?</p>`,
+    opts:[
+      {t:R`$+\infty$ ; l'axe des ordonnées (droite d'équation $x=0$) est asymptote verticale à $\mathcal{C}_g$.`, ok:true},
+      {t:m('1'), why:R`Le numérateur tend vers $\mathrm{e}^0=1$, mais on le divise par $${F.den}$, qui tend vers $0^+$.`},
+      {t:m('0'), why:R`C'est le dénominateur qui tend vers $0$ : le quotient devient très grand.`},
+      {t:R`$+\infty$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_g$.`, why:R`Une limite infinie en $0$ donne une asymptote verticale d'équation $x=0$.`}],
+    hint:R`Que vaut $\mathrm{e}^{${F.expo}}$ quand $x\to0$ ? Et le signe de $${F.den}$ ?`,
+    expl:R`$\lim\limits_{x\to0}\mathrm{e}^{${F.expo}}=\mathrm{e}^0=1$ et $\lim\limits_{x\to0}${F.den}=0^+$. Par quotient, $\lim\limits_{x\to0}g(x)=+\infty$ : l'axe des ordonnées est asymptote verticale à $\mathcal{C}_g$.`};
+}
+
+/* 13. Croissance comparée */
+function gCroiss(){
+  const k=rint(1,3), v=rint(1,4), kS = k===1 ? '' : `${k}`;
+  let expr, res, expl, hint;
+  if(v===1){ expr=R`\dfrac{\mathrm{e}^{${kS}\sqrt{x}}}{\sqrt{x}}`; res=PINF;
+    hint=R`Pose $X=${kS}\sqrt{x}$.`;
+    expl = k===1 ? R`Posons $X=\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $\dfrac{\mathrm{e}^{X}}{X}$, qui tend vers $+\infty$ par croissance comparée.`
+                 : R`Posons $X=${k}\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et $\sqrt x=\dfrac{X}{${k}}$, donc l'expression vaut $${k}\times\dfrac{\mathrm{e}^{X}}{X}$, qui tend vers $+\infty$ par croissance comparée.`; }
+  else if(v===2){ expr=R`\sqrt{x}\,\mathrm{e}^{-${kS}\sqrt{x}}`; res='0';
+    hint=R`Pose $X=${kS}\sqrt{x}$ et écris $\mathrm{e}^{-X}=\dfrac{1}{\mathrm{e}^{X}}$.`;
+    expl = k===1 ? R`Posons $X=\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $X\mathrm{e}^{-X}=\dfrac{X}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée.`
+                 : R`Posons $X=${k}\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $\dfrac{1}{${k}}\times\dfrac{X}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée.`; }
+  else if(v===3){ expr=R`\dfrac{\mathrm{e}^{${cx(k)}}}{x^2}`; res=PINF;
+    hint = k===1 ? R`C'est un résultat de croissance comparée du cours.` : R`Pose $X=${k}x$.`;
+    expl = k===1 ? R`Par croissance comparée, $\lim\limits_{x\to+\infty}\dfrac{\mathrm{e}^{x}}{x^2}=+\infty$.`
+                 : R`Posons $X=${k}x$ : quand $x\to+\infty$, $X\to+\infty$ et $x^2=\dfrac{X^2}{${k*k}}$, donc l'expression vaut $${k*k}\times\dfrac{\mathrm{e}^{X}}{X^2}$, qui tend vers $+\infty$ par croissance comparée.`; }
+  else { expr=R`x^2\,\mathrm{e}^{-${cx(k)}}`; res='0';
+    hint = k===1 ? R`Écris $x^2\mathrm{e}^{-x}=\dfrac{x^2}{\mathrm{e}^{x}}$.` : R`Pose $X=${k}x$ et écris $\mathrm{e}^{-X}=\dfrac{1}{\mathrm{e}^{X}}$.`;
+    expl = k===1 ? R`$x^2\mathrm{e}^{-x}=\dfrac{x^2}{\mathrm{e}^{x}}$, qui tend vers $0$ par croissance comparée.`
+                 : R`Posons $X=${k}x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $\dfrac{1}{${k*k}}\times\dfrac{X^2}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée.`; }
+  const other = res===PINF ? '0' : PINF;
+  return { theme:'Limites',
+    q:R`<p>Que vaut $\displaystyle\lim_{x\to+\infty}${expr}$ ?</p>`,
+    opts:[
+      {t:R`$${res}$, par croissance comparée.`, ok:true},
+      {t:m(other), why: res===PINF ? `C'est l'exponentielle qui l'emporte, et elle est au numérateur.` : `C'est l'exponentielle qui l'emporte : son inverse tend vers 0 plus vite que la puissance ne tend vers l'infini.`},
+      {t:m('1'), why:R`On a une forme indéterminée : il faut la lever, on ne peut pas conclure ainsi.`},
+      {t:`Pas de limite, car c'est une forme indéterminée.`, why:`Une forme indéterminée se lève : ici par croissance comparée, après un changement de variable si besoin.`}],
+    hint, expl };
+}
+
+/* 14. Nombre dérivé */
+function gNbDer(){
+  const a=rint(-1,3), T=pick([1,1,1,2,2,3]);
+  const fa=R`\dfrac{f(${a}+h)-f(${a})}{h}`, D=I(a,PINF,'[','[');
+  let rhs, opts, hint, expl;
+  const der = v => R`$f$ est dérivable en $${a}$ et $f'(${a})=${v}$.`;
+  if(T===1){
+    const c=rint(-3,4), s=pick([1,-1]), n=pick([1,2]), hn = n===2?'h^2':'h', Xn = n===2?'X^2':'X';
+    const term=R`\dfrac{1}{${hn}}\,\mathrm{e}^{-\frac{1}{h}}`;
+    rhs = (c!==0 ? `${c}`+(s>0?'+':'-') : (s>0?'':'-')) + term;
+    const vals=[...new Set([c+s,0,c-s,c+2,c-2])].filter(v=>v!==c).slice(0,2);
+    opts=[{t:der(c), ok:true},
+      ...vals.map(v=>({t:der(v), why:R`Le terme $${term}$ tend vers $0$ : le taux d'accroissement tend vers $${c}$.`})),
+      {t:R`$f$ n'est pas dérivable en $${a}$, car $\dfrac{1}{${hn}}\to+\infty$.`, why:R`On a une forme « $\infty\times0$ » : l'exponentielle l'emporte et le produit tend vers $0$.`}];
+    hint=R`Pose $X=\dfrac1h$. Que devient $${term}$ quand $h\to0^+$ ?`;
+    expl=R`Posons $X=\dfrac1h$ : quand $h\to0^+$, $X\to+\infty$ et $${term}=${Xn}\mathrm{e}^{-X}=\dfrac{${Xn}}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée. Le taux d'accroissement tend donc vers le réel $${c}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${c}$.`;
+  } else if(T===2){
+    const k=pick([2,3,-1,-2,-3]), kh=cx(k,'h');
+    rhs=R`\dfrac{\mathrm{e}^{${kh}}-1}{h}`;
+    opts=[{t:der(k), ok:true},
+      {t:der(1), why:R`Il ne faut pas oublier le facteur $${k}$ : pose $X=${kh}$.`},
+      {t:der(0), why:R`C'est une forme indéterminée « $\frac{0}{0}$ » : on ne peut pas conclure directement.`},
+      {t:R`$f$ n'est pas dérivable en $${a}$.`, why:R`Le taux d'accroissement a une limite finie : $f$ est dérivable en $${a}$.`}];
+    hint=R`Pose $X=${kh}$ et reconnais un taux d'accroissement de $\exp$ en $0$.`;
+    expl=R`Posons $X=${kh}$ : quand $h\to0$, $X\to0$ et $\dfrac{\mathrm{e}^{${kh}}-1}{h}=${k}\times\dfrac{\mathrm{e}^{X}-1}{X}$. Or $\dfrac{\mathrm{e}^{X}-1}{X}=\dfrac{\mathrm{e}^{0+X}-\mathrm{e}^{0}}{X}\to\exp'(0)=1$. Le taux tend donc vers $${k}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${k}$.`;
+  } else {
+    const c=rint(-3,4);
+    rhs=(c!==0?`${c}+`:'')+R`\dfrac{1}{\sqrt{h}}`;
+    opts=[{t:R`$f$ n'est pas dérivable en $${a}$ : le taux d'accroissement tend vers $+\infty$.`, ok:true},
+      {t:der(c), why:R`$\dfrac{1}{\sqrt h}$ tend vers $+\infty$ quand $h\to0^+$, pas vers $0$.`},
+      {t:der(c+1), why:R`$\dfrac{1}{\sqrt h}$ ne tend pas vers $1$ : il tend vers $+\infty$.`},
+      {t:der(PINF), why:R`Un nombre dérivé est un nombre réel : une limite infinie signifie que $f$ n'est pas dérivable.`}];
+    hint=R`Un nombre dérivé est la limite <b>finie</b> du taux d'accroissement.`;
+    expl=R`Quand $h\to0^+$, $\sqrt h\to0^+$ donc $\dfrac{1}{\sqrt h}\to+\infty$ : le taux d'accroissement tend vers $+\infty$, qui n'est pas un réel. $f$ n'est donc pas dérivable en $${a}$ (la courbe admet une tangente verticale en ce point).`;
+  }
+  return { theme:'Nombre dérivé',
+    q:R`<p>Soit $f$ une fonction définie sur $${D}$. Pour tout réel $h>0$, on donne :</p><p>$$${fa}=${rhs}.$$</p><p>Que peut-on conclure ?</p>`,
+    opts, hint, expl };
+}
+
+/* racine de 1-e^{-kx} ou de e^{kx}-1, partagée par les questions 15 et 16 */
+function gRoot(s){
+  const {v,k}=s, kS = k===1 ? '' : `${k}`;
+  if(v===1){ const w=cx(-k); return {v,k,kS,w,ew:E(w),u:R`1-\mathrm{e}^{${w}}`,upT:R`${kS}\mathrm{e}^{${w}}`}; }
+  const w=cx(k); return {v,k,kS,w,ew:E(w),u:R`\mathrm{e}^{${w}}-1`,upT:R`${kS}\mathrm{e}^{${w}}`};
+}
+
+/* 15. Ensemble de définition */
+function gDef(s){
+  const F=gRoot(s), {w,ew,u}=F, D=R`\left[0\,;+\infty\right[`;
+  const opts = F.v===1 ? [
+      {t:R`$x\geqslant0\Rightarrow${w}\leqslant0\Rightarrow${ew}\leqslant1\Rightarrow${u}\geqslant0$.`, ok:true},
+      {t:R`$${ew}>0$, donc $${u}>0$.`, why:R`$${ew}>0$ donne seulement $${u}<1$.`},
+      {t:R`$x\geqslant0\Rightarrow${ew}\geqslant1\Rightarrow${u}\geqslant0$.`, why:R`Pour $x\geqslant0$, on a $${ew}\leqslant1$ ; et $${ew}\geqslant1$ donnerait $${u}\leqslant0$.`},
+      {t:R`Une racine carrée est toujours définie sur $${D}$.`, why:R`$\sqrt{u}$ est définie quand $u\geqslant0$ : c'est l'expression sous la racine qu'il faut étudier.`}]
+    : [
+      {t:R`$x\geqslant0\Rightarrow${w}\geqslant0\Rightarrow${ew}\geqslant1\Rightarrow${u}\geqslant0$.`, ok:true},
+      {t:R`$${ew}>0$, donc $${u}>0$.`, why:R`$${ew}>0$ donne seulement $${u}>-1$.`},
+      {t:R`$x\geqslant0\Rightarrow${ew}\leqslant1\Rightarrow${u}\geqslant0$.`, why:R`Pour $x\geqslant0$, on a $${ew}\geqslant1$ ; et $${ew}\leqslant1$ donnerait $${u}\leqslant0$.`},
+      {t:R`Une racine carrée est toujours définie sur $${D}$.`, why:R`$\sqrt{u}$ est définie quand $u\geqslant0$ : c'est l'expression sous la racine qu'il faut étudier.`}];
+  const expl = F.v===1
+    ? R`Si $x\geqslant0$, alors $${w}\leqslant0$, donc $${ew}\leqslant\mathrm{e}^{0}=1$ (exponentielle croissante), d'où $${u}\geqslant0$. La racine est donc bien définie sur $${D}$.`
+    : R`Si $x\geqslant0$, alors $${w}\geqslant0$, donc $${ew}\geqslant\mathrm{e}^{0}=1$ (exponentielle croissante), d'où $${u}\geqslant0$. La racine est donc bien définie sur $${D}$.`;
+  return { theme:'Ensemble de définition',
+    q:R`<p>On considère $f(x)=\sqrt{${u}}$. Quelle justification prouve que $f$ est bien définie sur $${D}$ ?</p>`,
+    opts, hint:R`$\sqrt{u(x)}$ existe si et seulement si $u(x)\geqslant0$. Compare $${ew}$ à $1$ quand $x\geqslant0$.`, expl };
+}
+
+/* 16. Dérivée de la racine */
+function gDerSqrt(s){
+  const F=gRoot(s), {u,upT,ew}=F;
+  const simp = F.k%2===0 ? R`=\dfrac{${F.k/2===1?'':F.k/2}${ew}}{\sqrt{${u}}}` : '';
+  const ans = F.k%2===0 ? R`\dfrac{${F.k/2===1?'':F.k/2}${ew}}{\sqrt{${u}}}` : R`\dfrac{${upT}}{2\sqrt{${u}}}`;
+  const signWhy = F.v===1
+    ? R`$u'(x)=0-\left(-${upT}\right)=${upT}$ : les deux signes moins se compensent.`
+    : R`$u'(x)=${upT}$ est positif : il n'y a pas de signe moins.`;
+  return { theme:'Dérivées',
+    q:R`<p>Avec $f(x)=\sqrt{${u}}$, quelle est l'expression de $f'(x)$ pour $x>0$ ?</p>`,
+    opts:[
+      {t:R`$f'(x)=${ans}$`, ok:true},
+      {t:R`$f'(x)=\dfrac{-${upT}}{2\sqrt{${u}}}$`, why:signWhy},
+      {t:R`$f'(x)=\dfrac{1}{2\sqrt{${u}}}$`, why:R`$(\sqrt u)'=\dfrac{u'}{2\sqrt u}$ : il manque $u'$ au numérateur.`},
+      {t:R`$f'(x)=\dfrac{${upT}}{\sqrt{${u}}}$`, why:R`Il manque le facteur $2$ de la formule $\dfrac{u'}{2\sqrt u}$.`}],
+    hint:R`Pose $u(x)=${u}$ et calcule $u'(x)$ avec soin.`,
+    expl:R`$u(x)=${u}$, donc $u'(x)=${upT}$. D'où $f'(x)=\dfrac{u'(x)}{2\sqrt{u(x)}}=\dfrac{${upT}}{2\sqrt{${u}}}${simp}$.`};
+}
+
+function safe(gen, ctx){
+  for(let t=0;t<40;t++){ const q=gen(ctx); const ts=q.opts.map(o=>o.t); if(new Set(ts).size===ts.length) return q; }
+  return gen(ctx);
+}
+function buildSet(){
+  const g={t:pick(['A','B']), k:rint(1,3)}, s={v:pick([1,2]), k:rint(1,3)};
+  return [gLimQuot, gTaux, gExpCont, gAsymV, gAsymH, gMethod, gIneq, gPos, gSqrtVar, gDerExp,
+          ()=>gQuot(g), ()=>gLim0(g), gCroiss, gNbDer, ()=>gDef(s), ()=>gDerSqrt(s)].map(f=>safe(f));
+}
+
+const LET = ["A","B","C","D"];
+let Q, N, perm, answers, hints, cur, serie = 0;
+
+function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function newSet(){ Q = buildSet(); N = Q.length; serie++; reset(); }
+function reset(){
+  perm = Q.map(q => shuffle(q.opts.map((_,i)=>i)));
+  answers = Array(N).fill(null);
+  hints = Array(N).fill(false);
+  cur = 0; render();
+}
+const isOk = i => answers[i] !== null && Q[i].opts[answers[i]].ok;
+const view = document.getElementById('view');
+const dots = document.getElementById('dots');
+const serieEl = document.getElementById('serie');
+
+function renderDots(){
+  let h = '';
+  for(let i=0;i<N;i++){
+    let c = 'dot';
+    if(answers[i]!==null) c += isOk(i) ? ' ok' : ' ko';
+    if(i===cur) c += ' cur';
+    h += `<button class="${c}" data-go="${i}" aria-label="Question ${i+1}">${i+1}</button>`;
+  }
+  h += `<button class="dot end${cur===N?' cur':''}" data-go="${N}">Bilan</button>`;
+  dots.innerHTML = h;
+  serieEl.textContent = `Série n° ${serie}`;
+}
+
+function renderQuestion(i){
+  const q = Q[i], a = answers[i], done = a !== null;
+  const opts = perm[i].map((oi, k) => {
+    const o = q.opts[oi];
+    let cls = 'opt';
+    if(done){ if(o.ok) cls += ' good'; else if(oi===a) cls += ' bad'; else cls += ' dim'; }
+    const why = (done && oi===a && !o.ok) ? `<span class="why">${o.why}</span>` : '';
+    return `<button class="${cls}" data-pick="${oi}" ${done?'disabled':''}><span class="l">${LET[k]}</span><span class="t">${o.t}${why}</span></button>`;
+  }).join('');
+  const fb = done ? `<div class="panel feedback"><h3>Correction</h3><p class="verdict ${isOk(i)?'ok':'ko'}">${isOk(i)?'Bonne réponse.':'Ce n’est pas la bonne réponse.'}</p><p>${q.expl}</p></div>` : '';
+  const hint = (hints[i] && !done) ? `<div class="panel hint"><h3>Indice</h3><p>${q.hint}</p></div>` : '';
+  view.innerHTML = `
+    <div class="qhead"><span class="qnum">Question ${i+1} / ${N}</span><span class="chip">${q.theme}</span></div>
+    <div class="prompt">${q.q}</div>
+    <div class="opts" role="group" aria-label="Réponses">${opts}</div>
+    ${hint}${fb}
+    <div class="actions">
+      <button class="btn" data-hint ${done||hints[i]?'disabled':''}>Un indice</button>
+      <span class="spacer"></span>
+      <button class="btn" data-prev ${i===0?'disabled':''}>Précédente</button>
+      <button class="btn primary" data-next>${i===N-1?'Voir le bilan':'Suivante'}</button>
+    </div>`;
+}
+
+function renderSummary(){
+  const answered = answers.filter(a=>a!==null).length;
+  const score = Q.reduce((s,_,i)=>s+(isOk(i)?1:0),0);
+  const themes = {};
+  Q.forEach((q,i)=>{ themes[q.theme] ??= {t:0,ok:0}; themes[q.theme].t++; if(isOk(i)) themes[q.theme].ok++; });
+  const rows = Object.entries(themes).map(([k,v])=>`
+    <div class="trow"><span>${k}</span><span class="bar"><i style="width:${Math.round(100*v.ok/v.t)}%"></i></span><span class="n">${v.ok}/${v.t}</span></div>`).join('');
+  const missed = Q.map((q,i)=>i).filter(i=>answers[i]!==null && !isOk(i));
+  const todo = Q.map((q,i)=>i).filter(i=>answers[i]===null);
+  const r = score/N;
+  let msg;
+  if(answered < N) msg = `Il reste ${N-answered} question${N-answered>1?'s':''} sans réponse.`;
+  else if(r >= .85) msg = 'Très bien : tu es prêt·e pour le contrôle. Fais une nouvelle série pour vérifier que ce n’était pas un coup de chance.';
+  else if(r >= .6) msg = 'C’est en bonne voie. Reprends les thèmes les plus faibles ci-dessous, puis fais une nouvelle série.';
+  else msg = 'Reprends le cours sur les thèmes les plus faibles, relis les corrections, puis fais une nouvelle série : les valeurs changeront.';
+  view.innerHTML = `
+    <div class="qhead"><span class="qnum">Bilan</span></div>
+    <div class="score"><span class="big">${score} / ${N}</span><span class="sub">${msg}</span></div>
+    <h2>Par thème</h2>
+    <div class="themes">${rows}</div>
+    ${missed.length?`<h2>À revoir</h2><div class="missed">${missed.map(i=>`<button data-go="${i}">Question ${i+1} · ${Q[i].theme}</button>`).join('')}</div>`:''}
+    ${todo.length?`<p class="foot">Sans réponse : ${todo.map(i=>i+1).join(', ')}.</p>`:''}
+    <div class="actions"><span class="spacer"></span><button class="btn" data-reset>Refaire cette série</button><button class="btn primary" data-new>Nouvelle série</button></div>`;
+}
+
+function render(){
+  renderDots();
+  if(cur===N) renderSummary(); else renderQuestion(cur);
+  typesetView();
+}
+function typesetView(){
+  if(window.MathJax && MathJax.typesetPromise){
+    try{ MathJax.typesetClear([view]); }catch(e){}
+    MathJax.typesetPromise([view]).catch(()=>{});
+  }
+}
+function go(i){ cur = Math.max(0, Math.min(N, i)); render(); window.scrollTo({top:0, behavior:'smooth'}); }
+function pick1(oi){ if(cur<N && answers[cur]===null){ answers[cur]=oi; render(); } }
+
+document.addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  if(b.dataset.go!==undefined) go(+b.dataset.go);
+  else if(b.dataset.pick!==undefined) pick1(+b.dataset.pick);
+  else if(b.hasAttribute('data-next')) go(cur+1);
+  else if(b.hasAttribute('data-prev')) go(cur-1);
+  else if(b.hasAttribute('data-hint')){ hints[cur]=true; render(); }
+  else if(b.hasAttribute('data-reset')) reset();
+  else if(b.hasAttribute('data-new')) newSet();
+});
+document.addEventListener('keydown', e => {
+  if(e.altKey||e.ctrlKey||e.metaKey) return;
+  const idx = LET.indexOf(e.key.toUpperCase());
+  if(idx>=0 && cur<N && answers[cur]===null){ pick1(perm[cur][idx]); }
+  else if(e.key==='ArrowRight' && cur<N) go(cur+1);
+  else if(e.key==='ArrowLeft' && cur>0) go(cur-1);
+});
+newSet();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/mathjax@3.2.2/es5/tex-svg.js" async></script>
+</body>
+</html>
