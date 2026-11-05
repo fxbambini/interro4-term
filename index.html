@@ -178,22 +178,36 @@ function gLimQuot(){
     expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${xm(a)}\to${z}$. Par quotient, la limite vaut $${res}$.`};
 }
 
-/* 2. Forme indéterminée : taux d'accroissement de exp en 0 */
+/* 2. Taux d'accroissement de exp en 0, annoncé dans l'énoncé */
 function gTaux(){
-  const k=pick([1,2,3,5]);
-  const ex = k===1 ? R`\frac{1}{x}` : R`\frac{${k}}{x}`;
-  const opts=[
-    {t:m(k), ok:true},
-    {t:m('0'), why:R`$x\to+\infty$ et $\mathrm{e}^{${ex}}-1\to0$ : c'est une forme indéterminée « $\infty\times0$ », on ne peut pas conclure directement.`},
-    {t:m(PINF), why:R`Le facteur $x$ ne l'emporte pas ici : il faut lever l'indétermination.`},
-    k===1 ? {t:m(R`\mathrm{e}`), why:R`Le nombre dérivé de $\exp$ en $0$ vaut $\mathrm{e}^0=1$, pas $\mathrm{e}$.`}
-          : {t:m('1'), why:R`Il ne faut pas oublier le facteur $${k}$ : avec $X=${ex}$, on a $x=\dfrac{${k}}{X}$.`}];
-  const expl = k===1
-    ? R`Posons $X=\dfrac1x$ : quand $x\to+\infty$, $X\to0^+$ et $x\left(\mathrm{e}^{\frac1x}-1\right)=\dfrac{\mathrm{e}^{X}-1}{X}=\dfrac{\mathrm{e}^{0+X}-\mathrm{e}^{0}}{X}$, qui tend vers $\exp'(0)=\mathrm{e}^0=1$.`
-    : R`Posons $X=\dfrac{${k}}{x}$ : quand $x\to+\infty$, $X\to0^+$ et $x=\dfrac{${k}}{X}$. Donc $x\left(\mathrm{e}^{${ex}}-1\right)=${k}\times\dfrac{\mathrm{e}^{X}-1}{X}$. Or $\dfrac{\mathrm{e}^{X}-1}{X}=\dfrac{\mathrm{e}^{0+X}-\mathrm{e}^{0}}{X}\to\exp'(0)=1$, donc la limite vaut $${k}$.`;
+  const intro = R`<p>En utilisant le taux d'accroissement de la fonction exponentielle en $0$, calculer `;
+  const tauxExpl = R`Le taux d'accroissement de $\exp$ en $0$ est $\dfrac{\mathrm{e}^{0+x}-\mathrm{e}^{0}}{x}=\dfrac{\mathrm{e}^{x}-1}{x}$ ; il tend vers $\exp'(0)=\mathrm{e}^{0}=1$ quand $x\to0$.`;
+  const hint = R`Fais apparaître $\dfrac{\mathrm{e}^{x}-1}{x}$, le taux d'accroissement de $\exp$ en $0$, dont la limite est $\exp'(0)$.`;
+  if(Math.random()<.75){
+    let a, b; do { a=pick([1,2,3,4,5,-2,-3]); b=pick([1,1,2,3,4]); } while(Math.abs(a)===b);
+    const num = b===1 ? R`\mathrm{e}^{x}-1` : R`${b}\left(\mathrm{e}^{x}-1\right)`;
+    const den = cx(a);
+    const res = fr(b,a), inv = fr(a,b);
+    const coef = R`${fr(b,a)}\times`;
+    const distract = [inv, '1', PINF].filter(v=>v!==res).slice(0,2);
+    return { theme:'Limites',
+      q: intro + R`$\displaystyle\lim_{x\to0}\dfrac{${num}}{${den}}$.</p>`,
+      opts:[
+        {t:m(res), ok:true},
+        {t:m('0'), why:R`Numérateur et dénominateur tendent vers $0$ : c'est une forme indéterminée « $\frac{0}{0}$ », pas une limite nulle.`},
+        ...distract.map(v=>({t:m(v), why: v===inv ? R`Le quotient est inversé : $\dfrac{${num}}{${den}}=${coef}\dfrac{\mathrm{e}^{x}-1}{x}$.` : v==='1' ? R`Il ne faut pas oublier les coefficients : $\dfrac{${num}}{${den}}=${coef}\dfrac{\mathrm{e}^{x}-1}{x}$.` : R`Le taux d'accroissement a une limite finie : $\exp'(0)=1$.`}))],
+      hint,
+      expl: tauxExpl + R` Or $\dfrac{${num}}{${den}}=${coef}\dfrac{\mathrm{e}^{x}-1}{x}$, donc la limite vaut $${coef}1=${res}$.`};
+  }
   return { theme:'Limites',
-    q:R`<p>Calculer $\displaystyle\lim_{x\to+\infty} x\left(\mathrm{e}^{${ex}}-1\right)$.</p>`,
-    opts, hint:R`Pose $X=${ex}$ et reconnais un taux d'accroissement de la fonction exponentielle en $0$.`, expl };
+    q: intro + R`$\displaystyle\lim_{x\to0}\dfrac{x}{\mathrm{e}^{x}-1}$.</p>`,
+    opts:[
+      {t:m('1'), ok:true},
+      {t:m('0'), why:R`Numérateur et dénominateur tendent vers $0$ : c'est une forme indéterminée « $\frac{0}{0}$ ».`},
+      {t:m(PINF), why:R`Le quotient est l'inverse du taux d'accroissement, qui tend vers $1$.`},
+      {t:m(R`\mathrm{e}`), why:R`$\exp'(0)=\mathrm{e}^{0}=1$, pas $\mathrm{e}$.`}],
+    hint: R`Écris $\dfrac{x}{\mathrm{e}^{x}-1}=\dfrac{1}{\;\dfrac{\mathrm{e}^{x}-1}{x}\;}$.`,
+    expl: tauxExpl + R` Donc $\dfrac{x}{\mathrm{e}^{x}-1}=\dfrac{1}{\frac{\mathrm{e}^{x}-1}{x}}$ tend vers $\dfrac11=1$.`};
 }
 
 /* 3. Limite en +inf avec exp(k/x) : continuité */
@@ -445,14 +459,14 @@ function gNbDer(){
     hint=R`Pose $X=\dfrac1h$. Que devient $${term}$ quand $h\to0^+$ ?`;
     expl=R`Posons $X=\dfrac1h$ : quand $h\to0^+$, $X\to+\infty$ et $${term}=${Xn}\mathrm{e}^{-X}=\dfrac{${Xn}}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée. Le taux d'accroissement tend donc vers le réel $${c}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${c}$.`;
   } else if(T===2){
-    const k=pick([2,3,-1,-2,-3]), kh=cx(k,'h');
-    rhs=R`\dfrac{\mathrm{e}^{${kh}}-1}{h}`;
-    opts=[{t:der(k), ok:true},
-      {t:der(1), why:R`Il ne faut pas oublier le facteur $${k}$ : pose $X=${kh}$.`},
-      {t:der(0), why:R`C'est une forme indéterminée « $\frac{0}{0}$ » : on ne peut pas conclure directement.`},
+    const c=nz(-3,4);
+    rhs=R`\left(h${sg(c)}\right)\mathrm{e}^{h}`;
+    opts=[{t:der(c), ok:true},
+      {t:der(c+1), why:R`$\mathrm{e}^{h}$ tend vers $\mathrm{e}^{0}=1$ et $h$ tend vers $0$ : le taux tend vers $${c}\times1=${c}$.`},
+      {t:der(cx(c,R`\mathrm{e}`)), why:R`$\mathrm{e}^{h}$ tend vers $\mathrm{e}^{0}=1$, pas vers $\mathrm{e}$.`},
       {t:R`$f$ n'est pas dérivable en $${a}$.`, why:R`Le taux d'accroissement a une limite finie : $f$ est dérivable en $${a}$.`}];
-    hint=R`Pose $X=${kh}$ et reconnais un taux d'accroissement de $\exp$ en $0$.`;
-    expl=R`Posons $X=${kh}$ : quand $h\to0$, $X\to0$ et $\dfrac{\mathrm{e}^{${kh}}-1}{h}=${k}\times\dfrac{\mathrm{e}^{X}-1}{X}$. Or $\dfrac{\mathrm{e}^{X}-1}{X}=\dfrac{\mathrm{e}^{0+X}-\mathrm{e}^{0}}{X}\to\exp'(0)=1$. Le taux tend donc vers $${k}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${k}$.`;
+    hint=R`Il n'y a pas de forme indéterminée : cherche la limite de chaque facteur quand $h\to0$.`;
+    expl=R`Quand $h\to0$, $h${sg(c)}\to${c}$ et $\mathrm{e}^{h}\to\mathrm{e}^{0}=1$ (continuité de $\exp$). Le taux d'accroissement tend donc vers le réel $${c}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${c}$.`;
   } else {
     const c=rint(-3,4);
     rhs=(c!==0?`${c}+`:'')+R`\dfrac{1}{\sqrt{h}}`;
