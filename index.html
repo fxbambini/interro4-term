@@ -138,7 +138,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden}
   <header>
     <span class="eyebrow">Terminale · Spécialité maths</span>
     <h1>Entraînement : exponentielle, limites et dérivées</h1>
-    <p class="lede">16 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
+    <p class="lede">17 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
     <div class="toolbar"><span class="serie" id="serie"></span><button class="btn" data-new>Nouvelle série</button></div>
   </header>
   <nav class="dots" id="dots" aria-label="Questions"></nav>
@@ -897,7 +897,7 @@ function buildSet(){
   return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gCroiss,
           ()=>gDerSqrt(s), ()=>gLimRoot(s),
           ()=>gAsymPoly(c), ()=>(c.deg2 ? gDerPoly(c) : gDerLin()),
-          ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, ()=>gTangH(tg), ()=>gTangS(tg)].map(f=>safe(f));
+          ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gFFF, ()=>gTangH(tg), ()=>gTangS(tg)].map(f=>safe(f));
 }
 
 const LET = ["A","B","C","D"];
