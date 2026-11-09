@@ -75,6 +75,17 @@ h1{font-family:var(--font-display);font-weight:400;font-size:clamp(1.6rem,4.2vw,
 .opt.bad{border-color:var(--ko);background:var(--ko-soft)}
 .opt.bad .l{color:var(--ko);border-color:var(--ko)}
 .opt.dim{opacity:.6}
+.parts{display:flex;flex-direction:column}
+.part{display:flex;flex-wrap:wrap;align-items:center;gap:8px 10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.part:last-child{border-bottom:0}
+.part .lab{min-width:104px}
+.pch{font:inherit;color:var(--ink);background:var(--surface);border:1.5px solid var(--line);border-radius:8px;padding:6px 14px;cursor:pointer;min-height:44px}
+.pch:hover:not([disabled]){border-color:var(--pen)}
+.pch[disabled]{cursor:default}
+.pch.sel{border-color:var(--pen);background:var(--pen-soft)}
+.pch.good{border-color:var(--ok);background:var(--ok-soft)}
+.pch.bad{border-color:var(--ko);background:var(--ko-soft)}
+.pch.dim{opacity:.5}
 .why{display:block;margin-top:6px;font-size:.92rem;color:var(--ko)}
 
 .panel{border-radius:8px;padding:14px 16px;display:flex;flex-direction:column;gap:6px;min-width:0;overflow-x:auto}
@@ -535,21 +546,22 @@ function gDerSqrt(s){
 /* ===== Questions ajoutées : cours, étude de fonction, lecture graphique ===== */
 const poly2 = (a,b,c) => { let s = a===1 ? 'x^2' : a===-1 ? '-x^2' : `${a}x^2`; if(b) s += st(b); if(c) s += sg(c); return s; };
 
-/* C1. Formules de dérivation du cours */
+/* C1. Vérification de toutes les formules de dérivation du cours (une ligne par formule) */
+const FORMULES = [
+  { f:R`(u+v)'`, ok:R`u'+v'`, d:[R`u'v+uv'`, R`u'v'`, R`u'+v`] },
+  { f:R`(uv)'`, ok:R`u'v+uv'`, d:[R`u'v'`, R`u'v-uv'`, R`u'+v'`] },
+  { f:R`\left(\dfrac{u}{v}\right)'`, ok:R`\dfrac{u'v-uv'}{v^2}`, d:[R`\dfrac{uv'-u'v}{v^2}`, R`\dfrac{u'v+uv'}{v^2}`, R`\dfrac{u'}{v'}`] },
+  { f:R`\left(\dfrac{1}{v}\right)'`, ok:R`-\dfrac{v'}{v^2}`, d:[R`\dfrac{1}{v'}`, R`\dfrac{v'}{v^2}`, R`-\dfrac{1}{v^2}`] },
+  { f:R`\left(v\circ u\right)'`, ok:R`u'\times v'\circ u`, d:[R`v'\circ u`, R`v'\circ u'`, R`u'\times v\circ u`] },
+  { f:R`\left(u^n\right)'`, ok:R`nu'u^{n-1}`, d:[R`nu^{n-1}`, R`n\left(u'\right)^{n-1}`, R`u'u^{n-1}`] },
+  { f:R`\left(\mathrm{e}^{u}\right)'`, ok:R`u'\mathrm{e}^{u}`, d:[R`\mathrm{e}^{u}`, R`\mathrm{e}^{u'}`, R`u\,\mathrm{e}^{u-1}`] },
+  { f:R`\left(\sqrt{u}\right)'`, ok:R`\dfrac{u'}{2\sqrt{u}}`, d:[R`\dfrac{1}{2\sqrt{u}}`, R`\dfrac{u'}{\sqrt{u}}`, R`\sqrt{u'}`] } ];
 function gFormule(){
-  const F = pick([
-    { f:R`(uv)'`, ok:R`u'v+uv'`, d:[[R`u'v'`, `On ne dérive pas un produit en multipliant les dérivées.`],[R`u'v-uv'`, `Pour un produit, c'est une somme : le signe moins est celui du quotient.`],[R`\dfrac{u'v+uv'}{v^2}`, `Pas de dénominateur pour la dérivée d'un produit.`]] },
-    { f:R`\left(\dfrac{u}{v}\right)'`, ok:R`\dfrac{u'v-uv'}{v^2}`, d:[[R`\dfrac{uv'-u'v}{v^2}`, `L'ordre compte : c'est $u'v-uv'$ au numérateur.`],[R`\dfrac{u'v+uv'}{v^2}`, `Pour un quotient, il y a un signe moins au numérateur.`],[R`\dfrac{u'}{v'}`, `On ne dérive pas un quotient en divisant les dérivées.`]] },
-    { f:R`\left(\dfrac{1}{v}\right)'`, ok:R`-\dfrac{v'}{v^2}`, d:[[R`\dfrac{1}{v'}`, `On ne dérive pas un inverse en inversant la dérivée.`],[R`\dfrac{v'}{v^2}`, `Il manque le signe moins.`],[R`-\dfrac{1}{v^2}`, R`C'est la formule pour $\frac1x$ ; pour $\frac1v$, il faut multiplier par $v'$.`]] },
-    { f:R`\left(v\circ u\right)'`, ok:R`u'\times v'\circ u`, d:[[R`v'\circ u`, `Il manque le facteur $u'$.`],[R`v'\circ u'`, `On compose $v'$ avec $u$, pas avec $u'$, et on multiplie par $u'$.`],[R`u'\times v\circ u`, `C'est $v'$ qu'on compose avec $u$, pas $v$.`]] },
-    { f:R`\left(u^n\right)'`, ok:R`nu'u^{n-1}`, d:[[R`nu^{n-1}`, `Il manque le facteur $u'$.`],[R`n\left(u'\right)^{n-1}`, `On dérive $u$ une seule fois : c'est $u^{n-1}$, multiplié par $u'$.`],[R`u'u^{n-1}`, `Il manque le facteur $n$.`]] },
-    { f:R`\left(\mathrm{e}^{u}\right)'`, ok:R`u'\mathrm{e}^{u}`, d:[[R`\mathrm{e}^{u}`, `Il manque le facteur $u'$.`],[R`\mathrm{e}^{u'}`, `On multiplie par $u'$ ; on ne le met pas dans l'exposant.`],[R`u\,\mathrm{e}^{u-1}`, `Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`]] },
-    { f:R`\left(\sqrt{u}\right)'`, ok:R`\dfrac{u'}{2\sqrt{u}}`, d:[[R`\dfrac{1}{2\sqrt{u}}`, `Il manque le facteur $u'$ au numérateur.`],[R`\dfrac{u'}{\sqrt{u}}`, `Il manque le facteur $2$ au dénominateur.`],[R`\sqrt{u'}`, `La dérivée d'une racine n'est pas la racine de la dérivée.`]] }]);
   return { theme:'Cours',
-    q:R`<p>$u$ et $v$ sont deux fonctions dérivables. Quelle est la formule du cours pour $${F.f}$ ?</p>`,
-    opts:[{t:m(R`${F.f}=${F.ok}`), ok:true}, ...F.d.map(([t,why])=>({t:m(R`${F.f}=${t}`), why}))],
-    hint:`Pense à un exemple simple dont tu connais la dérivée, et vérifie la formule dessus.`,
-    expl:R`La formule du cours est $${F.f}=${F.ok}$.`};
+    q:R`<p>$u$ et $v$ sont deux fonctions dérivables. Pour chaque ligne, choisis la formule du cours, puis valide.</p>`,
+    parts: FORMULES.map(F=>({ label:m(F.f+'='), ch:[{t:m(F.ok), ok:true}, ...shuffle(F.d.slice()).slice(0,2).map(t=>({t:m(t)}))] })),
+    hint:`Pour chaque formule, pense à un exemple simple dont tu connais la dérivée et vérifie dessus.`,
+    expl:`Les formules du cours :</p><p>` + FORMULES.map(F=>m(R`${F.f}=${F.ok}`)).join(' &nbsp;;&nbsp; ') };
 }
 
 /* C2. Définition d'une fonction croissante */
@@ -807,34 +819,100 @@ function gDerSimple(){
     expl};
 }
 
+/* C12. Lecture graphique de nombres dérivés (comme l'exercice 3 de l'interrogation) */
+function mkTang(){
+  for(;;){
+    const xA=rint(-1,2), yA=rint(-2,3), [mn,md]=pick([[-3,1],[-2,1],[-3,2],[-1,1],[-1,2],[1,2],[1,1],[3,2],[2,1],[3,1]]);
+    const d=pick([-3,-2,-1,1,2,3]), dx=pick([1,1,-1])*md*(md===1?pick([1,2]):1);
+    const mv=mn/md, a=mv/(2*d), xC=xA-d, yC=yA-a*d*d, xB=xA+dx, yB=yA+mv*dx;
+    if(xB<-4||xB>5||yB<-4||yB>5||yC<-4||yC>5||xC<-4||xC>5||Math.abs(a)<0.25) continue;
+    if([[xA,yA],[xB,yB]].some(([x,y])=>(x===1&&y===0)||(x===0&&y===1)||(x===0&&y===0))) continue;   /* ne pas masquer les graduations */
+    return {xA,yA,mn,md,mv,a,xC,yC,xB,yB,dx};
+  }
+}
+function svgTang(t){
+  const W=440, H=440, x0=-4.5, x1=5.5, y0=-4.5, y1=5.5;
+  const X=x=>((x-x0)/(x1-x0)*W).toFixed(1), Y=y=>(H-(y-y0)/(y1-y0)*H).toFixed(1);
+  const f=x=>t.a*(x-t.xC)*(x-t.xC)+t.yC, T=x=>t.yA+t.mv*(x-t.xA);
+  let g='', d='';
+  for(let k=-4;k<=5;k++) g+=`<line x1="${X(k)}" y1="0" x2="${X(k)}" y2="${H}"/><line x1="0" y1="${Y(k)}" x2="${W}" y2="${Y(k)}"/>`;
+  for(let i=0;i<=300;i++){ const x=x0+(x1-x0)*i/300, y=Math.max(y0-3,Math.min(y1+3,f(x))); d+=(i?'L':'M')+X(x)+' '+Y(y); }
+  const cross=(x,y)=>`<path d="M${+X(x)-5} ${+Y(y)-5}l10 10m0 -10l-10 10" stroke="var(--ink)" stroke-width="2" fill="none"/>`;
+  const below=t.a>0, right=below===(t.mv>0);
+  const lab=(x,y,n)=>`<text x="${+X(x)+(right?9:-9)}" y="${+Y(y)+(below?18:-8)}" text-anchor="${right?'start':'end'}">${n}</text>`;
+  return `<svg viewBox="-6 -6 ${W+12} ${H+12}" style="width:100%;max-width:440px;display:block;margin:6px 0" role="img" aria-label="Courbe de f, tangente en A passant par B, tangente horizontale en C">
+    <defs><clipPath id="cliptg"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath>
+    <marker id="arrtg" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--ink)"/></marker></defs>
+    <g stroke="var(--line)" stroke-width="1">${g}</g>
+    <line x1="0" y1="${Y(0)}" x2="${W}" y2="${Y(0)}" stroke="var(--ink)" stroke-width="1.3" marker-end="url(#arrtg)"/>
+    <line x1="${X(0)}" y1="${H}" x2="${X(0)}" y2="0" stroke="var(--ink)" stroke-width="1.3" marker-end="url(#arrtg)"/>
+    <g fill="var(--muted)" font-size="13" font-family="var(--font-mono)"><text x="${X(1)}" y="${+Y(0)+16}" text-anchor="middle">1</text><text x="${+X(0)-7}" y="${+Y(1)+4}" text-anchor="end">1</text><text x="${+X(0)-7}" y="${+Y(0)+16}" text-anchor="end">0</text></g>
+    <g clip-path="url(#cliptg)">
+      <line x1="${X(x0)}" y1="${Y(T(x0))}" x2="${X(x1)}" y2="${Y(T(x1))}" stroke="var(--ok)" stroke-width="1.8"/>
+      <line x1="${X(t.xC-0.9)}" y1="${Y(t.yC)}" x2="${X(t.xC+0.9)}" y2="${Y(t.yC)}" stroke="var(--ok)" stroke-width="1.8" stroke-dasharray="5 4"/>
+      <path d="${d}" fill="none" stroke="var(--margin)" stroke-width="2.6"/>
+      ${cross(t.xA,t.yA)}${cross(t.xB,t.yB)}${cross(t.xC,t.yC)}
+      <g fill="var(--ink)" font-size="16" font-weight="700">${lab(t.xA,t.yA,'A')}${lab(t.xB,t.yB,'B')}<text x="${X(t.xC)}" y="${+Y(t.yC)+(below?20:-10)}" text-anchor="middle">C</text></g>
+    </g></svg>`;
+}
+const tangIntro = t => R`<p>On donne la courbe $\mathcal{C}_f$ d'une fonction $f$ dérivable. La tangente à $\mathcal{C}_f$ au point A passe par le point B, et $\mathcal{C}_f$ admet une tangente parallèle à l'axe des abscisses au point C.</p>` + svgTang(t);
+function gTangH(t){
+  const ds=[`${t.xC}`,'1','-1','2'].filter(v=>v!=='0').filter((v,i,arr)=>arr.indexOf(v)===i).slice(0,2);
+  return { theme:'Lecture graphique',
+    q: tangIntro(t) + R`<p>Lire graphiquement $f'(${t.xC})$.</p>`,
+    opts:[
+      {t:m(R`f'(${t.xC})=0`), ok:true},
+      ...ds.map(v=>({t:m(R`f'(${t.xC})=${v}`), why: v===`${t.xC}` ? R`$${t.xC}$ est l'abscisse du point C. Le nombre dérivé est le coefficient directeur de la tangente.` : `Une droite parallèle à l'axe des abscisses a un coefficient directeur nul.`})),
+      {t:R`On ne peut pas le savoir sans l'expression de $f$.`, why:`Le nombre dérivé est le coefficient directeur de la tangente, qu'on lit sur le graphique.`}],
+    hint:R`$f'(a)$ est le coefficient directeur de la tangente à $\mathcal{C}_f$ au point d'abscisse $a$.`,
+    expl:R`$f'(${t.xC})$ est le coefficient directeur de la tangente à $\mathcal{C}_f$ au point C d'abscisse $${t.xC}$. Cette tangente est parallèle à l'axe des abscisses : son coefficient directeur est nul, donc $f'(${t.xC})=0$.`};
+}
+function gTangS(t){
+  const {xA,yA,xB,yB,mn,md,dx}=t, dy=yB-yA, pz=v=>v<0?`(${v})`:`${v}`, ok=fr(mn,md);
+  const cand=[[fr(md,mn), R`Le coefficient directeur est $\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}$, pas l'inverse.`],
+              [fr(-mn,md), `Attention au signe : regarde si la tangente monte ou descend, et garde le même ordre des points en haut et en bas.`],
+              [`${yA}`, R`$${yA}$ est l'ordonnée de A, c'est-à-dire $f(${xA})$, pas $f'(${xA})$.`],
+              [`${dy}`, R`$${dy}$ est la différence des ordonnées : il faut la diviser par la différence des abscisses.`],
+              ['0', `Un nombre dérivé nul correspond à une tangente parallèle à l'axe des abscisses : c'est le cas en C, pas en A.`],
+              [fr(2*mn,md), `Relis les coordonnées de A et B sur le quadrillage.`]];
+  const seen=new Set([ok]), ds=[]; for(const c of cand){ if(!seen.has(c[0])){ seen.add(c[0]); ds.push(c); } }
+  return { theme:'Lecture graphique',
+    q: tangIntro(t) + R`<p>Lire graphiquement $f'(${xA})$.</p>`,
+    opts:[{t:m(R`f'(${xA})=${ok}`), ok:true}, ...ds.slice(0,3).map(([v,why])=>({t:m(R`f'(${xA})=${v}`), why}))],
+    hint:R`$f'(${xA})$ est le coefficient directeur de la tangente $(\mathrm{AB})$. Lis les coordonnées de A et de B.`,
+    expl:R`$f'(${xA})$ est le coefficient directeur de la tangente à $\mathcal{C}_f$ en A, qui passe par A$\left(${xA}\,;${yA}\right)$ et B$\left(${xB}\,;${yB}\right)$ : $f'(${xA})=\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}=\dfrac{${yB}-${pz(yA)}}{${xB}-${pz(xA)}}=\dfrac{${dy}}{${dx}}=${ok}$.`};
+}
+
 const fixMath = str => typeof str!=='string' ? str : str.replace(/\$\$[\s\S]*?\$\$|\$[^$]*\$/g, mm => mm.replace(/</g,'\\lt ').replace(/>/g,'\\gt '));
 function fixQ(q){ q.q=fixMath(q.q); q.hint=fixMath(q.hint); q.expl=fixMath(q.expl); q.opts.forEach(o=>{ o.t=fixMath(o.t); if(o.why) o.why=fixMath(o.why); }); return q; }
 function safe(gen, ctx){
-  for(let t=0;t<40;t++){ const q=gen(ctx); const ts=q.opts.map(o=>o.t); if(new Set(ts).size===ts.length) return fixQ(q); }
+  for(let t=0;t<40;t++){ const q=gen(ctx); if(q.parts) return q; const ts=q.opts.map(o=>o.t); if(new Set(ts).size===ts.length) return fixQ(q); }
   return fixQ(gen(ctx));
 }
 function buildSet(){
   const g={t:pick(['A','B']), k:rint(1,3)}, s={v:pick([1,2]), k:rint(1,3)};
   let p, q; do { p=nz(-3,3); q=nz(-2,4); } while(q<=p || p+q===0);
-  const c={p, q, s:pick([-1,-1,1])};
+  const tg=mkTang();
+  const c={p, q, s:pick([-1,-1,1]), deg2:Math.random()<.5};   /* deg2 : la question de dérivée porte sur le polynôme du second degré de la question précédente */
   return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gCroiss,
           ()=>gDerSqrt(s), ()=>gLimRoot(s),
-          ()=>gAsymPoly(c), ()=>gDerPoly(c), gDerLin,
-          ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gDerSimple].map(f=>safe(f));
+          ()=>gAsymPoly(c), ()=>(c.deg2 ? gDerPoly(c) : gDerLin()),
+          ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, ()=>gTangH(tg), ()=>gTangS(tg)].map(f=>safe(f));
 }
 
 const LET = ["A","B","C","D"];
-let Q, N, perm, answers, hints, cur, serie = 0;
+let Q, N, perm, sel, answers, hints, cur, serie = 0;
 
 function shuffle(a){ for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
 function newSet(){ Q = buildSet(); N = Q.length; serie++; reset(); }
 function reset(){
-  perm = Q.map(q => shuffle(q.opts.map((_,i)=>i)));
+  perm = Q.map(q => q.parts ? q.parts.map(p => shuffle(p.ch.map((_,i)=>i))) : shuffle(q.opts.map((_,i)=>i)));
+  sel = Q.map(q => q.parts ? Array(q.parts.length).fill(null) : null);
   answers = Array(N).fill(null);
   hints = Array(N).fill(false);
   cur = 0; render();
 }
-const isOk = i => answers[i] !== null && Q[i].opts[answers[i]].ok;
+const isOk = i => answers[i] !== null && (Q[i].parts ? answers[i].every((c,k) => Q[i].parts[k].ch[c].ok) : Q[i].opts[answers[i]].ok);
 const view = document.getElementById('view');
 const dots = document.getElementById('dots');
 const serieEl = document.getElementById('serie');
@@ -852,7 +930,31 @@ function renderDots(){
   serieEl.textContent = `Série n° ${serie}`;
 }
 
+function renderMulti(i){
+  const q = Q[i], done = answers[i] !== null, cs = done ? answers[i] : sel[i];
+  const rows = q.parts.map((p,k) => {
+    const bs = perm[i][k].map(ci => { const c = p.ch[ci]; let cls = 'pch';
+      if(done){ if(c.ok) cls += ' good'; else if(cs[k]===ci) cls += ' bad'; else cls += ' dim'; } else if(cs[k]===ci) cls += ' sel';
+      return `<button class="${cls}" data-part="${k}" data-ch="${ci}" ${done?'disabled':''}>${c.t}</button>`; }).join('');
+    return `<div class="part"><span class="lab">${p.label}</span>${bs}</div>`; }).join('');
+  const nb = done ? q.parts.filter((p,k) => !p.ch[cs[k]].ok).length : 0;
+  const fb = done ? `<div class="panel feedback"><h3>Correction</h3><p class="verdict ${nb?'ko':'ok'}">${nb ? `${nb} formule${nb>1?'s':''} fausse${nb>1?'s':''} sur ${q.parts.length}.` : 'Toutes les formules sont justes.'}</p><p>${q.expl}</p></div>` : '';
+  const hint = (hints[i] && !done) ? `<div class="panel hint"><h3>Indice</h3><p>${q.hint}</p></div>` : '';
+  view.innerHTML = `
+    <div class="qhead"><span class="qnum">Question ${i+1} / ${N}</span><span class="chip">${q.theme}</span></div>
+    <div class="prompt">${q.q}</div>
+    <div class="parts">${rows}</div>
+    ${hint}${fb}
+    <div class="actions">
+      <button class="btn" data-hint ${done||hints[i]?'disabled':''}>Un indice</button>
+      <span class="spacer"></span>
+      <button class="btn" data-prev ${i===0?'disabled':''}>Précédente</button>
+      ${done ? '' : `<button class="btn primary" data-validate ${cs.every(v=>v!==null)?'':'disabled'}>Valider</button>`}
+      <button class="btn${done?' primary':''}" data-next>${i===N-1?'Voir le bilan':'Suivante'}</button>
+    </div>`;
+}
 function renderQuestion(i){
+  if(Q[i].parts) return renderMulti(i);
   const q = Q[i], a = answers[i], done = a !== null;
   const opts = perm[i].map((oi, k) => {
     const o = q.opts[oi];
@@ -917,7 +1019,9 @@ function pick1(oi){ if(cur<N && answers[cur]===null){ answers[cur]=oi; render();
 
 document.addEventListener('click', e => {
   const b = e.target.closest('button'); if(!b) return;
-  if(b.dataset.go!==undefined) go(+b.dataset.go);
+  if(b.dataset.part!==undefined){ if(cur<N && answers[cur]===null){ sel[cur][+b.dataset.part] = +b.dataset.ch; render(); } }
+  else if(b.hasAttribute('data-validate')){ if(sel[cur].every(v=>v!==null)){ answers[cur] = sel[cur].slice(); render(); } }
+  else if(b.dataset.go!==undefined) go(+b.dataset.go);
   else if(b.dataset.pick!==undefined) pick1(+b.dataset.pick);
   else if(b.hasAttribute('data-next')) go(cur+1);
   else if(b.hasAttribute('data-prev')) go(cur-1);
@@ -928,7 +1032,7 @@ document.addEventListener('click', e => {
 document.addEventListener('keydown', e => {
   if(e.altKey||e.ctrlKey||e.metaKey) return;
   const idx = LET.indexOf(e.key.toUpperCase());
-  if(idx>=0 && cur<N && answers[cur]===null){ pick1(perm[cur][idx]); }
+  if(idx>=0 && cur<N && !Q[cur].parts && answers[cur]===null){ pick1(perm[cur][idx]); }
   else if(e.key==='ArrowRight' && cur<N) go(cur+1);
   else if(e.key==='ArrowLeft' && cur>0) go(cur-1);
 });
