@@ -127,7 +127,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden}
   <header>
     <span class="eyebrow">Terminale · Spécialité maths</span>
     <h1>Entraînement : exponentielle, limites et dérivées</h1>
-    <p class="lede">26 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
+    <p class="lede">18 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
     <div class="toolbar"><span class="serie" id="serie"></span><button class="btn" data-new>Nouvelle série</button></div>
   </header>
   <nav class="dots" id="dots" aria-label="Questions"></nav>
@@ -175,39 +175,31 @@ function gLimQuot(){
       {t:m(nv), why:R`On ne peut pas remplacer $x$ par $${a}$ : le dénominateur s'annule.`},
       {t:m('0'), why:R`Un numérateur qui tend vers un réel strictement positif, divisé par un dénominateur qui tend vers $0$, donne une limite infinie.`}],
     hint:R`Cherche la limite du numérateur, puis celle du dénominateur <b>avec son signe</b>.`,
-    expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${den}\to${z}$. Par quotient, la limite vaut $${res}$ : la droite d'équation $x=${a}$ est asymptote verticale à la courbe.`};
+    expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${den}\to ${z}$. Par quotient, la limite vaut $${res}$ : la droite d'équation $x=${a}$ est asymptote verticale à la courbe.`};
 }
 
-/* 2. Taux d'accroissement de exp en 0, annoncé dans l'énoncé */
+/* 2. Expression du taux d'accroissement en a */
 function gTaux(){
-  const intro = R`<p>En utilisant le taux d'accroissement de la fonction exponentielle en $0$, calculer `;
-  const tauxExpl = R`Le taux d'accroissement de $\exp$ en $0$ est $\dfrac{\mathrm{e}^{0+x}-\mathrm{e}^{0}}{x}=\dfrac{\mathrm{e}^{x}-1}{x}$ ; il tend vers $\exp'(0)=\mathrm{e}^{0}=1$ quand $x\to0$.`;
-  const hint = R`Fais apparaître $\dfrac{\mathrm{e}^{x}-1}{x}$, le taux d'accroissement de $\exp$ en $0$, dont la limite est $\exp'(0)$.`;
-  if(Math.random()<.75){
-    let a, b; do { a=pick([1,2,3,4,5,-2,-3]); b=pick([1,1,2,3,4]); } while(Math.abs(a)===b);
-    const num = b===1 ? R`\mathrm{e}^{x}-1` : R`${b}\left(\mathrm{e}^{x}-1\right)`;
-    const den = cx(a);
-    const res = fr(b,a), inv = fr(a,b);
-    const coef = R`${fr(b,a)}\times`;
-    const distract = [inv, '1', PINF].filter(v=>v!==res).slice(0,2);
-    return { theme:'Limites',
-      q: intro + R`$\displaystyle\lim_{x\to0}\dfrac{${num}}{${den}}$.</p>`,
-      opts:[
-        {t:m(res), ok:true},
-        {t:m('0'), why:R`Numérateur et dénominateur tendent vers $0$ : c'est une forme indéterminée « $\frac{0}{0}$ », pas une limite nulle.`},
-        ...distract.map(v=>({t:m(v), why: v===inv ? R`Le quotient est inversé : $\dfrac{${num}}{${den}}=${coef}\dfrac{\mathrm{e}^{x}-1}{x}$.` : v==='1' ? R`Il ne faut pas oublier les coefficients : $\dfrac{${num}}{${den}}=${coef}\dfrac{\mathrm{e}^{x}-1}{x}$.` : R`Le taux d'accroissement a une limite finie : $\exp'(0)=1$.`}))],
-      hint,
-      expl: tauxExpl + R` Or $\dfrac{${num}}{${den}}=${coef}\dfrac{\mathrm{e}^{x}-1}{x}$, donc la limite vaut $${coef}1=${res}$.`};
-  }
-  return { theme:'Limites',
-    q: intro + R`$\displaystyle\lim_{x\to0}\dfrac{x}{\mathrm{e}^{x}-1}$.</p>`,
+  const par = t => /[+-]/.test(t) ? R`\left(${t}\right)` : t;
+  const F = pick([
+    { name:R`\mathrm{e}^{x}`, D:R`\mathbb{R}`, A:[0,1,2,3,-1], v:t=>R`\mathrm{e}^{${t}}` },
+    { name:R`x^2`, D:R`\mathbb{R}`, A:[0,1,2,3,-2], v:t=>R`${par(t)}^2` },
+    { name:R`x^3`, D:R`\mathbb{R}`, A:[0,1,2,-1], v:t=>R`${par(t)}^3` },
+    { name:R`\dfrac{1}{x}`, D:R`\left]0\,;+\infty\right[`, A:[1,2,3,4], v:t=>R`\dfrac{1}{${t}}` },
+    { name:R`\sqrt{x}`, D:R`\left[0\,;+\infty\right[`, A:[1,2,3,4,9], v:t=>R`\sqrt{${t}}` },
+    { name:R`3x^2+1`, D:R`\mathbb{R}`, A:[0,1,2,3], v:t=>R`3${par(t)}^2+1` } ]);
+  const a=pick(F.A), aS = a<0 ? `(${a})` : `${a}`, ah = `${a}+h`;
+  const fah=F.v(ah), fa=F.v(aS);
+  const ok=R`\dfrac{${fah}-${fa}}{h}`;
+  return { theme:'Nombre dérivé',
+    q:R`<p>On considère la fonction $f$ définie sur $${F.D}$ par $f(x)=${F.name}$.</p><p>Pour $h\neq0$ (avec $${a}+h$ dans l'ensemble de définition), quelle est l'expression du taux d'accroissement de $f$ en $${a}$ ?</p>`,
     opts:[
-      {t:m('1'), ok:true},
-      {t:m('0'), why:R`Numérateur et dénominateur tendent vers $0$ : c'est une forme indéterminée « $\frac{0}{0}$ ».`},
-      {t:m(PINF), why:R`Le quotient est l'inverse du taux d'accroissement, qui tend vers $1$.`},
-      {t:m(R`\mathrm{e}`), why:R`$\exp'(0)=\mathrm{e}^{0}=1$, pas $\mathrm{e}$.`}],
-    hint: R`Écris $\dfrac{x}{\mathrm{e}^{x}-1}=\dfrac{1}{\;\dfrac{\mathrm{e}^{x}-1}{x}\;}$.`,
-    expl: tauxExpl + R` Donc $\dfrac{x}{\mathrm{e}^{x}-1}=\dfrac{1}{\frac{\mathrm{e}^{x}-1}{x}}$ tend vers $\dfrac11=1$.`};
+      {t:m(ok), ok:true},
+      {t:m(R`${fah}-${fa}`), why:`Il manque la division par $h$.`},
+      {t:m(R`\dfrac{${fah}-${fa}}{${a===0?ah:a}}`), why:R`Le taux d'accroissement en $a$ est $\dfrac{f(a+h)-f(a)}{h}$ : on divise par $h$.`},
+      {t:m(R`\dfrac{${fa}+h-${fa}}{h}`), why:R`$f(${a}+h)$ n'est pas égal à $f(${a})+h$ : on remplace $x$ par $${a}+h$ dans l'expression de $f$.`}],
+    hint:R`Le taux d'accroissement de $f$ en $a$ est $\dfrac{f(a+h)-f(a)}{h}$.`,
+    expl:R`Le taux d'accroissement de $f$ en $a$ est $\dfrac{f(a+h)-f(a)}{h}$. Ici $a=${a}$ : $f(${a}+h)=${fah}$ et $f(${a})=${fa}$, donc le taux d'accroissement vaut $${ok}$.`};
 }
 
 /* 3. Limite en +inf avec exp(k/x) : continuité */
@@ -241,7 +233,7 @@ function gAsymV(){
       {t:R`$${res}$ ; la droite d'équation $y=${p}$ est asymptote horizontale à $\mathcal{C}_f$.`, why:R`Une limite infinie quand $x$ tend vers un réel $a$ donne une asymptote <b>verticale</b> d'équation $x=a$.`},
       {t:R`$0$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_f$.`, why:R`C'est le dénominateur qui tend vers $0$, pas le quotient.`}],
     hint:R`Le signe de $x^2-${c2}$ se lit dans un tableau de signes : racines $-${c}$ et $${c}$, positif à l'extérieur des racines.`,
-    expl:R`Le numérateur tend vers $${nv}>0$. Sur $${D}$, ${sgnTxt}, donc le dénominateur tend vers $${z}$. Par quotient, $\lim\limits_{x\to${p}}f(x)=${res}$ : la droite d'équation $x=${p}$ est asymptote verticale à $\mathcal{C}_f$.`};
+    expl:R`Le numérateur tend vers $${nv}>0$. Sur $${D}$, ${sgnTxt}, donc le dénominateur tend vers $${z}$. Par quotient, $\lim\limits_{x\to ${p}}f(x)=${res}$ : la droite d'équation $x=${p}$ est asymptote verticale à $\mathcal{C}_f$.`};
 }
 
 /* 5. Asymptote horizontale */
@@ -249,14 +241,14 @@ function gAsymH(){
   const k=rint(1,3), b=rint(1,9), minus=Math.random()<.5;
   const ek = minus ? cx(k) : cx(-k), num=E(ek), dir = minus ? MINF : PINF;
   return { theme:'Limites',
-    q:R`<p>On considère $f$ définie sur $\mathbb{R}$ par $f(x)=\dfrac{${num}}{x^2+${b}}$.</p><p>Que vaut $\displaystyle\lim_{x\to${dir}}f(x)$, et comment l'interpréter ?</p>`,
+    q:R`<p>On considère $f$ définie sur $\mathbb{R}$ par $f(x)=\dfrac{${num}}{x^2+${b}}$.</p><p>Que vaut $\displaystyle\lim_{x\to ${dir}}f(x)$, et comment l'interpréter ?</p>`,
     opts:[
       {t:R`$0$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_f$ en $${dir}$.`, ok:true},
       {t:R`$0$ ; la droite d'équation $x=0$ est asymptote verticale à $\mathcal{C}_f$.`, why:R`Une limite finie $\ell$ en $\pm\infty$ donne une asymptote <b>horizontale</b> d'équation $y=\ell$.`},
-      {t:m(PINF), why:R`Quand $x\to${dir}$, c'est $${num}$ qui tend vers $0$, tandis que le dénominateur tend vers $+\infty$.`},
+      {t:m(PINF), why:R`Quand $x\to ${dir}$, c'est $${num}$ qui tend vers $0$, tandis que le dénominateur tend vers $+\infty$.`},
       {t:`On ne peut pas conclure : c'est une forme indéterminée.`, why:R`« $\frac{0}{+\infty}$ » n'est pas une forme indéterminée : le quotient tend vers $0$.`}],
-    hint:R`Que vaut $\lim\limits_{x\to${dir}}${num}$ ? Et $\lim\limits_{x\to${dir}}\left(x^2+${b}\right)$ ?`,
-    expl:R`Quand $x\to${dir}$, $${ek}\to-\infty$ donc $${num}\to0$, et $x^2+${b}\to+\infty$. Par quotient, la limite vaut $0$ : l'axe des abscisses est asymptote horizontale à $\mathcal{C}_f$ en $${dir}$.`};
+    hint:R`Que vaut $\lim\limits_{x\to ${dir}}${num}$ ? Et $\lim\limits_{x\to ${dir}}\left(x^2+${b}\right)$ ?`,
+    expl:R`Quand $x\to ${dir}$, $${ek}\to-\infty$ donc $${num}\to0$, et $x^2+${b}\to+\infty$. Par quotient, la limite vaut $0$ : l'axe des abscisses est asymptote horizontale à $\mathcal{C}_f$ en $${dir}$.`};
 }
 
 /* 6. Méthode de la position relative */
@@ -287,7 +279,7 @@ function gIneq(){
       {t:R`Les solutions sont les réels $x${rel2}${bad}$.`, why:R`$1=\mathrm{e}^{0}$, pas $\mathrm{e}^{1}$ : on doit résoudre $${u}${rel}0$.`},
       {t: big ? `Tous les réels sont solutions, car une exponentielle est strictement positive.` : `Aucun réel n'est solution, car une exponentielle est strictement positive.`, why:R`$\mathrm{e}^{${u}}>0$ ne dit rien sur le signe de $\mathrm{e}^{${u}}-1$.`}],
     hint:R`Écris $1$ sous la forme $\mathrm{e}^{\dots}$.`,
-    expl:R`La fonction exponentielle est strictement croissante, donc $\mathrm{e}^{${u}}-1${rel}0\iff\mathrm{e}^{${u}}${rel}\mathrm{e}^{0}\iff${u}${rel}0\iff x${rel2}${bnd}$.${note} Les solutions sont les réels $x${rel2}${bnd}$.`};
+    expl:R`La fonction exponentielle est strictement croissante, donc $\mathrm{e}^{${u}}-1${rel}0\iff\mathrm{e}^{${u}}${rel}\mathrm{e}^{0}\iff ${u}${rel}0\iff x${rel2}${bnd}$.${note} Les solutions sont les réels $x${rel2}${bnd}$.`};
 }
 
 /* 8. Position relative complète */
@@ -303,10 +295,10 @@ function gPos(){
   if(change) return { ...base,
     opts:[
       {t:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${above}$, en dessous sur $${below}$, et elles se coupent au point $(0\,;${q})$.`, ok:true},
-      {t:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${below}$, en dessous sur $${above}$.`, why:R`$\mathrm{e}^{${kx}}>1\iff${kx}>0\iff${xs}$.`},
+      {t:R`$\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${below}$, en dessous sur $${above}$.`, why:R`$\mathrm{e}^{${kx}}>1\iff ${kx}>0\iff ${xs}$.`},
       {t:R`$\mathcal{C}_f$ est toujours au-dessus de $\Delta$, car une exponentielle est strictement positive.`, why:R`La différence vaut $${d}$, pas $\mathrm{e}^{${kx}}$.`},
       {t:R`$\mathcal{C}_f$ est toujours en dessous de $\Delta$.`, why:R`La différence $${d}$ change de signe en $0$.`}],
-    expl:R`$f(x)-(${dT})=${d}$. Or $${d}>0\iff\mathrm{e}^{${kx}}>\mathrm{e}^{0}\iff${kx}>0\iff${xs}$. Donc $\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${above}$, en dessous sur $${below}$, et elles se coupent en $x=0$, au point $(0\,;${q})$.` };
+    expl:R`$f(x)-(${dT})=${d}$. Or $${d}>0\iff\mathrm{e}^{${kx}}>\mathrm{e}^{0}\iff ${kx}>0\iff ${xs}$. Donc $\mathcal{C}_f$ est au-dessus de $\Delta$ sur $${above}$, en dessous sur $${below}$, et elles se coupent en $x=0$, au point $(0\,;${q})$.` };
   return { ...base,
     opts:[
       {t:R`$\mathcal{C}_f$ est toujours strictement au-dessus de $\Delta$ : elles n'ont aucun point commun.`, ok:true},
@@ -411,26 +403,37 @@ function gLim0(ctx){
     expl:R`$\lim\limits_{x\to0}\mathrm{e}^{${F.expo}}=\mathrm{e}^0=1$ et $\lim\limits_{x\to0}${F.den}=0^+$. Par quotient, $\lim\limits_{x\to0}g(x)=+\infty$ : l'axe des ordonnées est asymptote verticale à $\mathcal{C}_g$.`};
 }
 
-/* 13. Croissance comparée */
+/* 13. Croissance comparée : on transforme l'expression, puis composition */
 function gCroiss(){
   const k=rint(1,3), v=rint(1,4), kS = k===1 ? '' : `${k}`;
+  const brace = (Xx, FX, L, gx) => R`$$\left.\begin{aligned}&\lim_{x\to+\infty} ${Xx} = +\infty\\ &\underset{\text{Par croissance comparée}}{\lim_{X\to+\infty} ${FX} = ${L}}\end{aligned}\right\}\ \text{Par composition :}\ \lim_{x\to+\infty} ${gx} = ${L}$$`;
   let expr, res, expl, hint;
   if(v===1){ expr=R`\dfrac{\mathrm{e}^{${kS}\sqrt{x}}}{\sqrt{x}}`; res=PINF;
-    hint=R`Pose $X=${kS}\sqrt{x}$.`;
-    expl = k===1 ? R`Posons $X=\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $\dfrac{\mathrm{e}^{X}}{X}$, qui tend vers $+\infty$ par croissance comparée.`
-                 : R`Posons $X=${k}\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et $\sqrt x=\dfrac{X}{${k}}$, donc l'expression vaut $${k}\times\dfrac{\mathrm{e}^{X}}{X}$, qui tend vers $+\infty$ par croissance comparée.`; }
+    const g=R`\dfrac{\mathrm{e}^{${kS}\sqrt{x}}}{${kS}\sqrt{x}}`;
+    hint=R`Fais apparaître $\dfrac{\mathrm{e}^{X}}{X}$ avec $X=${kS}\sqrt{x}$.`;
+    expl = (k===1 ? R`<p>On pose $X=\sqrt{x}$.</p>` : R`<p>Je transforme l'expression avant de calculer la limite : pour tout réel $x>0$, $${expr}=${k}\times${g}$.</p>`)
+         + brace(R`${kS}\sqrt{x}`, R`\dfrac{\mathrm{e}^{X}}{X}`, PINF, g)
+         + (k===1 ? '' : R`<p>Par produit par $${k}>0$, la limite vaut $+\infty$.</p>`); }
   else if(v===2){ expr=R`\sqrt{x}\,\mathrm{e}^{-${kS}\sqrt{x}}`; res='0';
-    hint=R`Pose $X=${kS}\sqrt{x}$ et écris $\mathrm{e}^{-X}=\dfrac{1}{\mathrm{e}^{X}}$.`;
-    expl = k===1 ? R`Posons $X=\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $X\mathrm{e}^{-X}=\dfrac{X}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée.`
-                 : R`Posons $X=${k}\sqrt x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $\dfrac{1}{${k}}\times\dfrac{X}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée.`; }
+    const g=R`${kS}\sqrt{x}\,\mathrm{e}^{-${kS}\sqrt{x}}`;
+    hint=R`Fais apparaître $X\mathrm{e}^{-X}=\dfrac{X}{\mathrm{e}^{X}}$ avec $X=${kS}\sqrt{x}$.`;
+    expl = (k===1 ? R`<p>On pose $X=\sqrt{x}$.</p>` : R`<p>Je transforme l'expression avant de calculer la limite : pour tout réel $x>0$, $${expr}=\dfrac{1}{${k}}\times${g}$.</p>`)
+         + brace(R`${kS}\sqrt{x}`, R`X\mathrm{e}^{-X}=\lim_{X\to+\infty}\dfrac{X}{\mathrm{e}^{X}}`, '0', g)
+         + (k===1 ? '' : R`<p>Par produit par $\dfrac{1}{${k}}$, la limite vaut $0$.</p>`); }
   else if(v===3){ expr=R`\dfrac{\mathrm{e}^{${cx(k)}}}{x^2}`; res=PINF;
-    hint = k===1 ? R`C'est un résultat de croissance comparée du cours.` : R`Pose $X=${k}x$.`;
-    expl = k===1 ? R`Par croissance comparée, $\lim\limits_{x\to+\infty}\dfrac{\mathrm{e}^{x}}{x^2}=+\infty$.`
-                 : R`Posons $X=${k}x$ : quand $x\to+\infty$, $X\to+\infty$ et $x^2=\dfrac{X^2}{${k*k}}$, donc l'expression vaut $${k*k}\times\dfrac{\mathrm{e}^{X}}{X^2}$, qui tend vers $+\infty$ par croissance comparée.`; }
+    if(k===1){ hint=R`C'est un résultat de croissance comparée du cours.`; expl=R`<p>Par croissance comparée, $\lim\limits_{x\to+\infty}\dfrac{\mathrm{e}^{x}}{x^2}=+\infty$.</p>`; }
+    else { const g=R`\dfrac{\mathrm{e}^{${k}x}}{\left(${k}x\right)^2}`;
+      hint=R`Fais apparaître $\dfrac{\mathrm{e}^{X}}{X^2}$ avec $X=${k}x$.`;
+      expl = R`<p>Je transforme l'expression avant de calculer la limite : pour tout réel $x\neq0$, $${expr}=\dfrac{\mathrm{e}^{${k}x}}{\frac{\left(${k}x\right)^2}{${k*k}}}=${k*k}\times${g}$.</p>`
+           + brace(R`${k}x`, R`\dfrac{\mathrm{e}^{X}}{X^2}`, PINF, g)
+           + R`<p>Par produit par $${k*k}>0$, la limite vaut $+\infty$.</p>`; } }
   else { expr=R`x^2\,\mathrm{e}^{-${cx(k)}}`; res='0';
-    hint = k===1 ? R`Écris $x^2\mathrm{e}^{-x}=\dfrac{x^2}{\mathrm{e}^{x}}$.` : R`Pose $X=${k}x$ et écris $\mathrm{e}^{-X}=\dfrac{1}{\mathrm{e}^{X}}$.`;
-    expl = k===1 ? R`$x^2\mathrm{e}^{-x}=\dfrac{x^2}{\mathrm{e}^{x}}$, qui tend vers $0$ par croissance comparée.`
-                 : R`Posons $X=${k}x$ : quand $x\to+\infty$, $X\to+\infty$ et l'expression vaut $\dfrac{1}{${k*k}}\times\dfrac{X^2}{\mathrm{e}^{X}}$, qui tend vers $0$ par croissance comparée.`; }
+    if(k===1){ hint=R`Écris $x^2\mathrm{e}^{-x}=\dfrac{x^2}{\mathrm{e}^{x}}$.`; expl=R`<p>Pour tout réel $x$, $x^2\mathrm{e}^{-x}=\dfrac{x^2}{\mathrm{e}^{x}}$, qui tend vers $0$ par croissance comparée.</p>`; }
+    else { const g=R`\left(${k}x\right)^2\mathrm{e}^{-${k}x}`;
+      hint=R`Fais apparaître $X^2\mathrm{e}^{-X}=\dfrac{X^2}{\mathrm{e}^{X}}$ avec $X=${k}x$.`;
+      expl = R`<p>Je transforme l'expression avant de calculer la limite : pour tout réel $x$, $${expr}=\dfrac{1}{${k*k}}\times${g}$.</p>`
+           + brace(R`${k}x`, R`X^2\mathrm{e}^{-X}=\lim_{X\to+\infty}\dfrac{X^2}{\mathrm{e}^{X}}`, '0', g)
+           + R`<p>Par produit par $\dfrac{1}{${k*k}}$, la limite vaut $0$.</p>`; } }
   const other = res===PINF ? '0' : PINF;
   return { theme:'Limites',
     q:R`<p>Que vaut $\displaystyle\lim_{x\to+\infty}${expr}$ ?</p>`,
@@ -438,7 +441,7 @@ function gCroiss(){
       {t:R`$${res}$, par croissance comparée.`, ok:true},
       {t:m(other), why: res===PINF ? `C'est l'exponentielle qui l'emporte, et elle est au numérateur.` : `C'est l'exponentielle qui l'emporte : son inverse tend vers 0 plus vite que la puissance ne tend vers l'infini.`},
       {t:m('1'), why:R`On a une forme indéterminée : il faut la lever, on ne peut pas conclure ainsi.`},
-      {t:`Pas de limite, car c'est une forme indéterminée.`, why:`Une forme indéterminée se lève : ici par croissance comparée, après un changement de variable si besoin.`}],
+      {t:`Pas de limite, car c'est une forme indéterminée.`, why:`Une forme indéterminée se lève : ici, en transformant l'expression puis par croissance comparée et composition.`}],
     hint, expl };
 }
 
@@ -466,7 +469,7 @@ function gNbDer(){
       {t:der(cx(c,R`\mathrm{e}`)), why:R`$\mathrm{e}^{h}$ tend vers $\mathrm{e}^{0}=1$, pas vers $\mathrm{e}$.`},
       {t:R`$f$ n'est pas dérivable en $${a}$.`, why:R`Le taux d'accroissement a une limite finie : $f$ est dérivable en $${a}$.`}];
     hint=R`Il n'y a pas de forme indéterminée : cherche la limite de chaque facteur quand $h\to0$.`;
-    expl=R`Quand $h\to0$, $h${sg(c)}\to${c}$ et $\mathrm{e}^{h}\to\mathrm{e}^{0}=1$ (continuité de $\exp$). Le taux d'accroissement tend donc vers le réel $${c}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${c}$.`;
+    expl=R`Quand $h\to0$, $h${sg(c)}\to ${c}$ et $\mathrm{e}^{h}\to\mathrm{e}^{0}=1$ (continuité de $\exp$). Le taux d'accroissement tend donc vers le réel $${c}$ : $f$ est dérivable en $${a}$ et $f'(${a})=${c}$.`;
   } else {
     const c=rint(-3,4);
     rhs=(c!==0?`${c}+`:'')+R`\dfrac{1}{\sqrt{h}}`;
@@ -493,14 +496,14 @@ function gRoot(s){
 function gDef(s){
   const F=gRoot(s), {w,ew,u}=F, D=R`\left[0\,;+\infty\right[`;
   const opts = F.v===1 ? [
-      {t:R`$x\geqslant0\Rightarrow${w}\leqslant0\Rightarrow${ew}\leqslant1\Rightarrow${u}\geqslant0$.`, ok:true},
+      {t:R`$x\geqslant0\Rightarrow ${w}\leqslant0\Rightarrow ${ew}\leqslant1\Rightarrow ${u}\geqslant0$.`, ok:true},
       {t:R`$${ew}>0$, donc $${u}>0$.`, why:R`$${ew}>0$ donne seulement $${u}<1$.`},
-      {t:R`$x\geqslant0\Rightarrow${ew}\geqslant1\Rightarrow${u}\geqslant0$.`, why:R`Pour $x\geqslant0$, on a $${ew}\leqslant1$ ; et $${ew}\geqslant1$ donnerait $${u}\leqslant0$.`},
+      {t:R`$x\geqslant0\Rightarrow ${ew}\geqslant1\Rightarrow ${u}\geqslant0$.`, why:R`Pour $x\geqslant0$, on a $${ew}\leqslant1$ ; et $${ew}\geqslant1$ donnerait $${u}\leqslant0$.`},
       {t:R`Une racine carrée est toujours définie sur $${D}$.`, why:R`$\sqrt{u}$ est définie quand $u\geqslant0$ : c'est l'expression sous la racine qu'il faut étudier.`}]
     : [
-      {t:R`$x\geqslant0\Rightarrow${w}\geqslant0\Rightarrow${ew}\geqslant1\Rightarrow${u}\geqslant0$.`, ok:true},
+      {t:R`$x\geqslant0\Rightarrow ${w}\geqslant0\Rightarrow ${ew}\geqslant1\Rightarrow ${u}\geqslant0$.`, ok:true},
       {t:R`$${ew}>0$, donc $${u}>0$.`, why:R`$${ew}>0$ donne seulement $${u}>-1$.`},
-      {t:R`$x\geqslant0\Rightarrow${ew}\leqslant1\Rightarrow${u}\geqslant0$.`, why:R`Pour $x\geqslant0$, on a $${ew}\geqslant1$ ; et $${ew}\leqslant1$ donnerait $${u}\leqslant0$.`},
+      {t:R`$x\geqslant0\Rightarrow ${ew}\leqslant1\Rightarrow ${u}\geqslant0$.`, why:R`Pour $x\geqslant0$, on a $${ew}\geqslant1$ ; et $${ew}\leqslant1$ donnerait $${u}\leqslant0$.`},
       {t:R`Une racine carrée est toujours définie sur $${D}$.`, why:R`$\sqrt{u}$ est définie quand $u\geqslant0$ : c'est l'expression sous la racine qu'il faut étudier.`}];
   const expl = F.v===1
     ? R`Si $x\geqslant0$, alors $${w}\leqslant0$, donc $${ew}\leqslant\mathrm{e}^{0}=1$ (exponentielle croissante), d'où $${u}\geqslant0$. La racine est donc bien définie sur $${D}$.`
@@ -645,9 +648,9 @@ function gVarXexp(){
       {t:tab(true, M), ok:true},
       {t:tab(false, M), why:R`Pour $0\leqslant x<${xm1}$, on a $1${st(-k)}>0$, donc $f'(x)>0$ : $f$ commence par croître.`},
       {t:R`$f$ est croissante sur $\left[0\,;+\infty\right[$, car une exponentielle est strictement positive.`, why:R`Le signe de $f'(x)$ dépend aussi du facteur $1${st(-k)}$, qui change de signe.`},
-      {t:tab(true, fr(a,k)), why:R`$f\left(${xm1}\right)=${a}\times${xm1}\times\mathrm{e}^{-1}$ : il ne faut pas oublier l'exponentielle.`}],
+      {t:tab(true, fr(a,k)), why:R`$f\left(${xm1}\right)=${a}\times ${xm1}\times\mathrm{e}^{-1}$ : il ne faut pas oublier l'exponentielle.`}],
     hint:R`$${ex}>0$ et $${a}>0$ : $f'(x)$ est du signe de $1${st(-k)}$.`,
-    expl:R`$${ex}>0$ et $${a}>0$, donc $f'(x)$ est du signe de $1${st(-k)}$, positif si et seulement si $x\leqslant${xm1}$. $f$ est croissante sur $\left[0\,;${xm1}\right]$ et décroissante sur $\left[${xm1}\,;+\infty\right[$. Son maximum vaut $f\left(${xm1}\right)=${M}$. De plus $f(0)=0$ et, par croissance comparée, $\lim\limits_{x\to+\infty}f(x)=0$.`};
+    expl:R`$${ex}>0$ et $${a}>0$, donc $f'(x)$ est du signe de $1${st(-k)}$, positif si et seulement si $x\leqslant ${xm1}$. $f$ est croissante sur $\left[0\,;${xm1}\right]$ et décroissante sur $\left[${xm1}\,;+\infty\right[$. Son maximum vaut $f\left(${xm1}\right)=${M}$. De plus $f(0)=0$ et, par croissance comparée, $\lim\limits_{x\to+\infty}f(x)=0$.`};
 }
 
 /* C8. Limite en +inf de la racine */
@@ -732,8 +735,8 @@ function svgCurves(F, order){
   const fns=[F.f,F.d1,F.d2];
   const paths = order.map((fi,ci)=>{ let d=''; for(let i=0;i<=400;i++){ const x=x0+(x1-x0)*i/400, y=Math.max(y0-5,Math.min(y1+5,fns[fi](x))); d+=(i?'L':'M')+X(x)+' '+Y(y); }
     return `<path d="${d}" fill="none" stroke="${CSTY[ci].c}" stroke-width="2.6" ${CSTY[ci].d?`stroke-dasharray="${CSTY[ci].d}"`:''}/>`; }).join('');
-  const legend = CSTY.map((s,ci)=>`<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="${s.c}" stroke-width="2.6" ${s.d?`stroke-dasharray="${s.d}"`:''}/></svg>$\\mathcal{C}_${ci+1}$</span>`).join('');
-  return `<svg viewBox="-34 -8 ${W+48} ${H+30}" style="width:100%;max-width:560px;display:block;margin:6px 0" role="img" aria-label="Trois courbes C1, C2 et C3">
+  const legend = CSTY.slice(0,order.length).map((s,ci)=>`<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="${s.c}" stroke-width="2.6" ${s.d?`stroke-dasharray="${s.d}"`:''}/></svg>$\\mathcal{C}_${ci+1}$</span>`).join('');
+  return `<svg viewBox="-34 -8 ${W+48} ${H+30}" style="width:100%;max-width:560px;display:block;margin:6px 0" role="img" aria-label="Courbes C1 et C2">
     <defs><clipPath id="clipfff"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath>
     <marker id="arrfff" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--ink)"/></marker></defs>
     <g stroke="var(--line)" stroke-width="1">${g}</g>
@@ -743,38 +746,31 @@ function svgCurves(F, order){
     <g clip-path="url(#clipfff)">${paths}</g></svg><p style="margin:0">${legend}</p>`;
 }
 function gFFF(){
-  const F=pick(FAMS), order=shuffle([0,1,2]);          /* order[ci] = fonction tracée par la courbe C_{ci+1} (0 : f, 1 : f', 2 : f'') */
-  const curveOf = fi => order.indexOf(fi)+1;             /* numéro de la courbe qui représente f, f' ou f'' */
-  const txt = a => R`$f$ : $\mathcal{C}_{${a[0]}}$ ; $f'$ : $\mathcal{C}_{${a[1]}}$ ; $f''$ : $\mathcal{C}_{${a[2]}}$`;
-  const good=[curveOf(0),curveOf(1),curveOf(2)];
-  const perms=[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]].filter(a=>a.join()!==good.join());
-  const wrong=shuffle(perms).slice(0,3).map(a=>{
-    const [cf,cd1,cd2]=a, real=c=>order[c-1];
-    const why = real(cd1)!==real(cf)+1
-      ? R`$\mathcal{C}_{${cd1}}$ ne représente pas la dérivée de la fonction de $\mathcal{C}_{${cf}}$ : compare les variations de $\mathcal{C}_{${cf}}$ avec le signe de $\mathcal{C}_{${cd1}}$.`
-      : R`$\mathcal{C}_{${cd2}}$ ne représente pas la dérivée de la fonction de $\mathcal{C}_{${cd1}}$ : compare les variations de $\mathcal{C}_{${cd1}}$ avec le signe de $\mathcal{C}_{${cd2}}$.`;
-    return {t:txt(a), why};
-  });
+  const F=pick(FAMS), order=shuffle([0,1]);             /* order[ci] = fonction tracée par la courbe C_{ci+1} (0 : f, 1 : f') */
+  const cf=order.indexOf(0)+1, cd=order.indexOf(1)+1;
   return { theme:'Lecture graphique',
-    q:R`<p>Les trois courbes représentent une fonction $f$, sa dérivée $f'$ et sa dérivée seconde $f''$. Quelle association est correcte ?</p>` + svgCurves(F, order),
-    opts:[{t:txt(good), ok:true}, ...wrong],
-    hint:`Une fonction est croissante là où sa dérivée est positive : les extremums d'une courbe correspondent aux points où la courbe de sa dérivée coupe l'axe des abscisses.`,
-    expl:R`$\mathcal{C}_{${good[0]}}$ est croissante exactement là où $\mathcal{C}_{${good[1]}}$ est au-dessus de l'axe des abscisses, et ses extremums correspondent aux points où $\mathcal{C}_{${good[1]}}$ coupe cet axe : $\mathcal{C}_{${good[1]}}$ représente la dérivée de la fonction de $\mathcal{C}_{${good[0]}}$. De même, les variations de $\mathcal{C}_{${good[1]}}$ correspondent au signe de $\mathcal{C}_{${good[2]}}$. Donc $f$ : $\mathcal{C}_{${good[0]}}$, $f'$ : $\mathcal{C}_{${good[1]}}$ et $f''$ : $\mathcal{C}_{${good[2]}}$.`};
+    q:R`<p>Les deux courbes représentent une fonction $f$ et sa dérivée $f'$. Quelle association est correcte ?</p>` + svgCurves(F, order),
+    opts:[
+      {t:R`$f$ : $\mathcal{C}_{${cf}}$ ; $f'$ : $\mathcal{C}_{${cd}}$`, ok:true},
+      {t:R`$f$ : $\mathcal{C}_{${cd}}$ ; $f'$ : $\mathcal{C}_{${cf}}$`, why:R`Compare les variations de $\mathcal{C}_{${cd}}$ avec le signe de $\mathcal{C}_{${cf}}$ : ils ne correspondent pas.`}],
+    hint:`Une fonction est croissante là où sa dérivée est positive : les extremums de la courbe de $f$ correspondent aux points où la courbe de $f'$ coupe l'axe des abscisses.`,
+    expl:R`$\mathcal{C}_{${cf}}$ est croissante exactement là où $\mathcal{C}_{${cd}}$ est au-dessus de l'axe des abscisses, et décroissante là où $\mathcal{C}_{${cd}}$ est en dessous. Ses extremums correspondent aux points où $\mathcal{C}_{${cd}}$ coupe l'axe des abscisses. Donc $f$ : $\mathcal{C}_{${cf}}$ et $f'$ : $\mathcal{C}_{${cd}}$.`};
 }
 
+const fixMath = str => typeof str!=='string' ? str : str.replace(/\$\$[\s\S]*?\$\$|\$[^$]*\$/g, mm => mm.replace(/</g,'\\lt ').replace(/>/g,'\\gt '));
+function fixQ(q){ q.q=fixMath(q.q); q.hint=fixMath(q.hint); q.expl=fixMath(q.expl); q.opts.forEach(o=>{ o.t=fixMath(o.t); if(o.why) o.why=fixMath(o.why); }); return q; }
 function safe(gen, ctx){
-  for(let t=0;t<40;t++){ const q=gen(ctx); const ts=q.opts.map(o=>o.t); if(new Set(ts).size===ts.length) return q; }
-  return gen(ctx);
+  for(let t=0;t<40;t++){ const q=gen(ctx); const ts=q.opts.map(o=>o.t); if(new Set(ts).size===ts.length) return fixQ(q); }
+  return fixQ(gen(ctx));
 }
 function buildSet(){
   const g={t:pick(['A','B']), k:rint(1,3)}, s={v:pick([1,2]), k:rint(1,3)};
   let p, q; do { p=nz(-3,3); q=nz(-2,4); } while(q<=p || p+q===0);
   const c={p, q, s:pick([-1,-1,1])};
-  return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gAsymH, gCroiss,
+  return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gCroiss,
           ()=>gDef(s), ()=>gDerSqrt(s), ()=>gLimRoot(s),
-          ()=>gSignPoly(c), ()=>gAsymPoly(c), ()=>gDerPoly(c), gDerLin, gVarXexp,
-          gDerExp, ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gNbDer, gTangRead, gFFF,
-          gMethod, gIneq, gPos].map(f=>safe(f));
+          ()=>gAsymPoly(c), ()=>gDerPoly(c), gDerLin,
+          gDerExp, ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gFFF].map(f=>safe(f));
 }
 
 const LET = ["A","B","C","D"];
