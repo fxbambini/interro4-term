@@ -127,7 +127,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden}
   <header>
     <span class="eyebrow">Terminale · Spécialité maths</span>
     <h1>Entraînement : exponentielle, limites et dérivées</h1>
-    <p class="lede">16 questions dans l'esprit du contrôle. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
+    <p class="lede">26 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
     <div class="toolbar"><span class="serie" id="serie"></span><button class="btn" data-new>Nouvelle série</button></div>
   </header>
   <nav class="dots" id="dots" aria-label="Questions"></nav>
@@ -163,19 +163,19 @@ const RPLUS = I(0,PINF);
 
 /* 1. Limite d'un quotient en un point, d'un côté */
 function gLimQuot(){
-  const a=nz(-3,4), right=Math.random()<.5, neg=Math.random()<.35;
-  const num=E(neg?'-x':'x'), nv=ev(neg?-a:a);
-  const cond=right?`x>${a}`:`x<${a}`, z=right?'0^+':'0^-';
-  const res=right?PINF:MINF, oth=right?MINF:PINF;
+  const a=nz(-3,4), right=Math.random()<.5, neg=Math.random()<.35, rev=Math.random()<.45;
+  const num=E(neg?'-x':'x'), nv=ev(neg?-a:a), den=rev?`${a}-x`:xm(a), pos=right!==rev;
+  const cond=right?`x>${a}`:`x<${a}`, z=pos?'0^+':'0^-';
+  const res=pos?PINF:MINF, oth=pos?MINF:PINF;
   return { theme:'Limites',
-    q:R`<p>Calculer $\displaystyle\lim_{\substack{x\to ${a}\\ ${cond}}} \dfrac{${num}}{${xm(a)}}$.</p>`,
+    q:R`<p>Calculer $\displaystyle\lim_{\substack{x\to ${a}\\ \phantom{x}${right?'>':'<'}\phantom{${a}}}} \dfrac{${num}}{${den}}$.</p>`,
     opts:[
       {t:m(res), ok:true},
-      {t:m(oth), why:R`Pour $${cond}$, on a $${xm(a)}${right?'>':'<'}0$ : le dénominateur tend vers $${z}$.`},
+      {t:m(oth), why:R`Pour $${cond}$, on a $${den}${pos?'>':'<'}0$ : le dénominateur tend vers $${z}$.`},
       {t:m(nv), why:R`On ne peut pas remplacer $x$ par $${a}$ : le dénominateur s'annule.`},
       {t:m('0'), why:R`Un numérateur qui tend vers un réel strictement positif, divisé par un dénominateur qui tend vers $0$, donne une limite infinie.`}],
     hint:R`Cherche la limite du numérateur, puis celle du dénominateur <b>avec son signe</b>.`,
-    expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${xm(a)}\to${z}$. Par quotient, la limite vaut $${res}$.`};
+    expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${den}\to${z}$. Par quotient, la limite vaut $${res}$ : la droite d'équation $x=${a}$ est asymptote verticale à la courbe.`};
 }
 
 /* 2. Taux d'accroissement de exp en 0, annoncé dans l'énoncé */
@@ -529,14 +529,252 @@ function gDerSqrt(s){
     expl:R`$u(x)=${u}$, donc $u'(x)=${upT}$. D'où $f'(x)=\dfrac{u'(x)}{2\sqrt{u(x)}}=\dfrac{${upT}}{2\sqrt{${u}}}${simp}$.`};
 }
 
+/* ===== Questions ajoutées : cours, étude de fonction, lecture graphique ===== */
+const poly2 = (a,b,c) => { let s = a===1 ? 'x^2' : a===-1 ? '-x^2' : `${a}x^2`; if(b) s += st(b); if(c) s += sg(c); return s; };
+
+/* C1. Formules de dérivation du cours */
+function gFormule(){
+  const F = pick([
+    { f:R`(uv)'`, ok:R`u'v+uv'`, d:[[R`u'v'`, `On ne dérive pas un produit en multipliant les dérivées.`],[R`u'v-uv'`, `Pour un produit, c'est une somme : le signe moins est celui du quotient.`],[R`\dfrac{u'v+uv'}{v^2}`, `Pas de dénominateur pour la dérivée d'un produit.`]] },
+    { f:R`\left(\dfrac{u}{v}\right)'`, ok:R`\dfrac{u'v-uv'}{v^2}`, d:[[R`\dfrac{uv'-u'v}{v^2}`, `L'ordre compte : c'est $u'v-uv'$ au numérateur.`],[R`\dfrac{u'v+uv'}{v^2}`, `Pour un quotient, il y a un signe moins au numérateur.`],[R`\dfrac{u'}{v'}`, `On ne dérive pas un quotient en divisant les dérivées.`]] },
+    { f:R`\left(\dfrac{1}{v}\right)'`, ok:R`-\dfrac{v'}{v^2}`, d:[[R`\dfrac{1}{v'}`, `On ne dérive pas un inverse en inversant la dérivée.`],[R`\dfrac{v'}{v^2}`, `Il manque le signe moins.`],[R`-\dfrac{1}{v^2}`, R`C'est la formule pour $\frac1x$ ; pour $\frac1v$, il faut multiplier par $v'$.`]] },
+    { f:R`\left(v\circ u\right)'`, ok:R`u'\times v'\circ u`, d:[[R`v'\circ u`, `Il manque le facteur $u'$.`],[R`v'\circ u'`, `On compose $v'$ avec $u$, pas avec $u'$, et on multiplie par $u'$.`],[R`u'\times v\circ u`, `C'est $v'$ qu'on compose avec $u$, pas $v$.`]] },
+    { f:R`\left(u^n\right)'`, ok:R`nu'u^{n-1}`, d:[[R`nu^{n-1}`, `Il manque le facteur $u'$.`],[R`n\left(u'\right)^{n-1}`, `On dérive $u$ une seule fois : c'est $u^{n-1}$, multiplié par $u'$.`],[R`u'u^{n-1}`, `Il manque le facteur $n$.`]] },
+    { f:R`\left(\mathrm{e}^{u}\right)'`, ok:R`u'\mathrm{e}^{u}`, d:[[R`\mathrm{e}^{u}`, `Il manque le facteur $u'$.`],[R`\mathrm{e}^{u'}`, `On multiplie par $u'$ ; on ne le met pas dans l'exposant.`],[R`u\,\mathrm{e}^{u-1}`, `Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`]] },
+    { f:R`\left(\sqrt{u}\right)'`, ok:R`\dfrac{u'}{2\sqrt{u}}`, d:[[R`\dfrac{1}{2\sqrt{u}}`, `Il manque le facteur $u'$ au numérateur.`],[R`\dfrac{u'}{\sqrt{u}}`, `Il manque le facteur $2$ au dénominateur.`],[R`\sqrt{u'}`, `La dérivée d'une racine n'est pas la racine de la dérivée.`]] }]);
+  return { theme:'Cours',
+    q:R`<p>$u$ et $v$ sont deux fonctions dérivables. Quelle est la formule du cours pour $${F.f}$ ?</p>`,
+    opts:[{t:m(R`${F.f}=${F.ok}`), ok:true}, ...F.d.map(([t,why])=>({t:m(R`${F.f}=${t}`), why}))],
+    hint:`Pense à un exemple simple dont tu connais la dérivée, et vérifie la formule dessus.`,
+    expl:R`La formule du cours est $${F.f}=${F.ok}$.`};
+}
+
+/* C2. Définition d'une fonction croissante */
+function gDefCroiss(){
+  return { theme:'Cours',
+    q:R`<p>Soit $f$ une fonction définie sur un intervalle $I$. Quelle est la définition de « $f$ est croissante sur $I$ » ?</p>`,
+    opts:[
+      {t:R`Pour tous réels $a$ et $b$ de $I$, si $a<b$ alors $f(a)\leqslant f(b)$.`, ok:true},
+      {t:R`Pour tous réels $a$ et $b$ de $I$, si $a<b$ alors $f(a)\geqslant f(b)$.`, why:`C'est la définition d'une fonction décroissante : elle renverse l'ordre.`},
+      {t:R`Il existe deux réels $a<b$ de $I$ tels que $f(a)\leqslant f(b)$.`, why:`Deux valeurs ne suffisent pas : il faut que ce soit vrai pour tous les réels $a<b$ de $I$.`},
+      {t:R`Pour tout réel $x$ de $I$, $f'(x)\geqslant0$.`, why:`C'est un théorème du cours, valable seulement si $f$ est dérivable : ce n'est pas la définition.`}],
+    hint:`Une fonction croissante conserve l'ordre.`,
+    expl:R`$f$ est croissante sur $I$ signifie que, pour tous réels $a$ et $b$ de $I$, si $a<b$ alors $f(a)\leqslant f(b)$ : $f$ conserve l'ordre.`};
+}
+
+/* polynôme du second degré à racines entières, partagé par les questions de signe, d'asymptotes et de dérivée */
+function gPoly(c){
+  const {p,q,s}=c, b=-(p+q), cc=p*q, P=poly2(1,b,cc), ex=E(cx(s));
+  return {p,q,s,b,cc,P,ex,f:R`${ex}\left(${P}\right)`};
+}
+
+/* C3. Signe de e^{sx}(x^2+bx+c) */
+function gSignPoly(c){
+  const F=gPoly(c), {p,q,P,ex}=F, d=(q-p)*(q-p);
+  return { theme:'Étude de fonction',
+    q:R`<p>On considère $f$ définie sur $\mathbb{R}$ par $f(x)=${F.f}$.</p><p>Sur quel ensemble a-t-on $f(x)\geqslant0$ ?</p>`,
+    opts:[
+      {t:m(R`\left]-\infty\,;${p}\right]\cup\left[${q}\,;+\infty\right[`), ok:true},
+      {t:m(R`\left[${p}\,;${q}\right]`), why:`Un trinôme est du signe de $a$ à l'extérieur des racines ; ici $a=1>0$.`},
+      {t:m(R`\mathbb{R}`), why:R`$${ex}>0$ ne donne pas le signe du produit : il faut aussi le signe de $${P}$.`},
+      {t:m(R`\left]-\infty\,;${-q}\right]\cup\left[${-p}\,;+\infty\right[`), why:R`Les racines de $${P}$ sont $${p}$ et $${q}$ : vérifie en remplaçant $x$ par ces valeurs.`}],
+    hint:R`Une exponentielle est strictement positive : $f(x)$ est du signe de $${P}$.`,
+    expl:R`Pour tout réel $x$, $${ex}>0$, donc $f(x)$ est du signe de $${P}$. Son discriminant vaut $\Delta=${d}>0$ et ses racines sont $${p}$ et $${q}$. Le trinôme est du signe de $a=1$, donc positif, à l'extérieur des racines : $f(x)\geqslant0$ sur $\left]-\infty\,;${p}\right]\cup\left[${q}\,;+\infty\right[$.`};
+}
+
+/* C4. Asymptotes de e^{sx}(x^2+bx+c) */
+function gAsymPoly(c){
+  const F=gPoly(c), {p,q,s,P,ex}=F;
+  const zero = s<0 ? PINF : MINF, inf = s<0 ? MINF : PINF;
+  const croiss = s<0 ? R`$f(x)=\dfrac{x^2}{\mathrm{e}^{x}}${F.b?R`${sg(F.b)}\dfrac{x}{\mathrm{e}^{x}}`:''}${F.cc?R`${sg(F.cc)}\dfrac{1}{\mathrm{e}^{x}}`:''}$`
+                     : R`$f(x)=x^2\mathrm{e}^{x}${F.b?R`${sg(F.b)}x\mathrm{e}^{x}`:''}${F.cc?R`${sg(F.cc)}\mathrm{e}^{x}`:''}$`;
+  return { theme:'Étude de fonction',
+    q:R`<p>On considère $f$ définie sur $\mathbb{R}$ par $f(x)=${F.f}$.</p><p>Quelles sont les asymptotes à la courbe $\mathcal{C}_f$ ?</p>`,
+    opts:[
+      {t:R`Une seule : la droite d'équation $y=0$, en $${zero}$.`, ok:true},
+      {t:R`La droite d'équation $y=0$, en $-\infty$ et en $+\infty$.`, why:R`En $${inf}$, $${ex}\to+\infty$ et $${P}\to+\infty$ : par produit, $f(x)\to+\infty$.`},
+      {t:R`Les droites d'équations $x=${p}$ et $x=${q}$.`, why:R`$f$ est définie et continue sur $\mathbb{R}$ : il n'y a pas d'asymptote verticale. En $${p}$ et $${q}$, $f$ s'annule.`},
+      {t:R`Aucune : en $${zero}$, on obtient une forme indéterminée.`, why:`Une forme indéterminée se lève : ici, par croissance comparée.`}],
+    hint:R`Cherche les limites en $-\infty$ et en $+\infty$. Une forme indéterminée avec une exponentielle se lève par croissance comparée.`,
+    expl:R`En $${inf}$ : $${ex}\to+\infty$ et $${P}\to+\infty$, donc $f(x)\to+\infty$ (pas d'asymptote). En $${zero}$ : ${croiss}, et chaque terme tend vers $0$ par croissance comparée, donc $f(x)\to0$ : la droite d'équation $y=0$ est asymptote horizontale en $${zero}$. $f$ est continue sur $\mathbb{R}$ : pas d'asymptote verticale.`};
+}
+
+/* C5. Dérivée de e^{sx}(x^2+bx+c) */
+function gDerPoly(c){
+  const F=gPoly(c), {s,b,cc,P,ex}=F;
+  const ok=poly2(s, s*b+2, s*cc+b), sgnErr=poly2(-s, -s*b+2, -s*cc+b);
+  const up = s<0 ? R`-\mathrm{e}^{-x}` : R`\mathrm{e}^{x}`;
+  return { theme:'Dérivées',
+    q:R`<p>On considère $f$ définie et dérivable sur $\mathbb{R}$ par $f(x)=${F.f}$.</p><p>Quelle est l'expression de $f'(x)$ ?</p>`,
+    opts:[
+      {t:m(R`f'(x)=\left(${ok}\right)${ex}`), ok:true},
+      {t:m(R`f'(x)=\left(${lin(2,b)}\right)${ex}`), why:R`$(uv)'=u'v+uv'$ : il manque le terme $u'v$, avec $u(x)=${ex}$.`},
+      s<0 ? {t:m(R`f'(x)=\left(${lin(2*s,s*b)}\right)${ex}`), why:`On ne dérive pas un produit en multipliant les dérivées.`}
+          : {t:m(R`f'(x)=\left(${poly2(1,b+2,cc)}\right)${ex}`), why:R`En développant $${ex}\left(${lin(2,b)}\right)$, il ne faut pas oublier le terme constant $${b}${ex}$.`},
+      {t:m(R`f'(x)=\left(${sgnErr}\right)${ex}`), why:R`Attention au signe : $\left(${ex}\right)'=${up}$.`}],
+    hint:R`J'applique la formule du cours $(uv)'=u'v+uv'$ avec $u(x)=${ex}$ et $v(x)=${P}$, puis je factorise par $${ex}$.`,
+    expl:R`J'applique la formule du cours $(uv)'=u'v+uv'$ avec $u(x)=${ex}$, $u'(x)=${up}$ (formule $(\mathrm{e}^{w})'=w'\mathrm{e}^{w}$), $v(x)=${P}$ et $v'(x)=${lin(2,b)}$. Donc $f'(x)=${s<0?'-':''}${ex}\left(${P}\right)+${ex}\left(${lin(2,b)}\right)=\left(${ok}\right)${ex}$.`};
+}
+
+/* C6. Dérivée de (ax+b)e^{kx+m} */
+function gDerLin(){
+  const a=rint(1,3), b=nz(-3,3), k=pick([-3,-2,-1,2,3]), mm=rint(-3,3);
+  const w=lin(k,mm), ex=E(w), u=lin(a,b), co=n=>n===1?'':n===-1?'-':`${n}`;
+  const ok=lin(k*a, a+k*b);
+  return { theme:'Dérivées',
+    q:R`<p>On considère $f$ définie et dérivable sur $\mathbb{R}$ par $f(x)=\left(${u}\right)${ex}$.</p><p>Quelle est l'expression de $f'(x)$ ?</p>`,
+    opts:[
+      {t:m(R`f'(x)=\left(${ok}\right)${ex}`), ok:true},
+      {t:m(R`f'(x)=${co(a*k)}${ex}`), why:`On ne dérive pas un produit en multipliant les dérivées.`},
+      {t:m(R`f'(x)=\left(${lin(k*a,k*b)}\right)${ex}`), why:R`$(uv)'=u'v+uv'$ : il manque le terme $u'v=${co(a)}${ex}$.`},
+      {t:m(R`f'(x)=\left(${lin(a,a+b)}\right)${ex}`), why:R`$\left(${ex}\right)'=${co(k)}${ex}$ : il ne faut pas oublier le facteur $${k}$.`}],
+    hint:R`J'applique la formule du cours $(uv)'=u'v+uv'$, avec $\left(\mathrm{e}^{w}\right)'=w'\mathrm{e}^{w}$.`,
+    expl:R`J'applique la formule du cours $(uv)'=u'v+uv'$ avec $u(x)=${u}$, $u'(x)=${a}$, $v(x)=${ex}$ et $v'(x)=${co(k)}${ex}$. Donc $f'(x)=${co(a)}${ex}+\left(${u}\right)\times\left(${co(k)}${ex}\right)=\left(${a}${st(k*a)}${sg(k*b)}\right)${ex}=\left(${ok}\right)${ex}$.`};
+}
+
+/* C7. Variations de a x e^{-kx} */
+function gVarXexp(){
+  const a=rint(1,4), k=rint(1,3), aS = a===1 ? '' : `${a}`;
+  const ex=E(cx(-k)), xm1=fr(1,k);
+  const M = a%k===0 ? (a/k===1 ? R`\mathrm{e}^{-1}` : R`${a/k}\mathrm{e}^{-1}`) : R`${fr(a,k)}\mathrm{e}^{-1}`;
+  const tab = (inc, v, w) => inc ? R`$f$ est croissante sur $\left[0\,;${xm1}\right]$, décroissante sur $\left[${xm1}\,;+\infty\right[$ ; son maximum vaut $${v}$.`
+                                 : R`$f$ est décroissante sur $\left[0\,;${xm1}\right]$, croissante sur $\left[${xm1}\,;+\infty\right[$ ; son minimum vaut $${v}$.`;
+  return { theme:'Variations',
+    q:R`<p>On considère $f$ définie sur $\left[0\,;+\infty\right[$ par $f(x)=${aS}x\,${ex}$.</p><p>On admet que pour tout réel $x\geqslant0$, $f'(x)=${aS}\left(1${st(-k)}\right)${ex}$. Que peut-on dire des variations de $f$ ?</p>`,
+    opts:[
+      {t:tab(true, M), ok:true},
+      {t:tab(false, M), why:R`Pour $0\leqslant x<${xm1}$, on a $1${st(-k)}>0$, donc $f'(x)>0$ : $f$ commence par croître.`},
+      {t:R`$f$ est croissante sur $\left[0\,;+\infty\right[$, car une exponentielle est strictement positive.`, why:R`Le signe de $f'(x)$ dépend aussi du facteur $1${st(-k)}$, qui change de signe.`},
+      {t:tab(true, fr(a,k)), why:R`$f\left(${xm1}\right)=${a}\times${xm1}\times\mathrm{e}^{-1}$ : il ne faut pas oublier l'exponentielle.`}],
+    hint:R`$${ex}>0$ et $${a}>0$ : $f'(x)$ est du signe de $1${st(-k)}$.`,
+    expl:R`$${ex}>0$ et $${a}>0$, donc $f'(x)$ est du signe de $1${st(-k)}$, positif si et seulement si $x\leqslant${xm1}$. $f$ est croissante sur $\left[0\,;${xm1}\right]$ et décroissante sur $\left[${xm1}\,;+\infty\right[$. Son maximum vaut $f\left(${xm1}\right)=${M}$. De plus $f(0)=0$ et, par croissance comparée, $\lim\limits_{x\to+\infty}f(x)=0$.`};
+}
+
+/* C8. Limite en +inf de la racine */
+function gLimRoot(s){
+  const F=gRoot(s), {w,ew,u}=F;
+  if(F.v===1) return { theme:'Limites',
+    q:R`<p>Avec $f(x)=\sqrt{${u}}$ sur $\left[0\,;+\infty\right[$, que vaut $\displaystyle\lim_{x\to+\infty}f(x)$ ?</p>`,
+    opts:[
+      {t:m('1'), ok:true},
+      {t:m('0'), why:R`C'est $${ew}$ qui tend vers $0$ ; $${u}$ tend vers $1$.`},
+      {t:m(PINF), why:R`$${w}\to-\infty$, donc $${ew}\to0$ : l'expression sous la racine reste bornée.`},
+      {t:`Pas de limite : c'est une forme indéterminée.`, why:`Il n'y a pas de forme indéterminée : chaque étape se fait par composition et somme.`}],
+    hint:R`Cherche d'abord la limite de $${ew}$ par composition.`,
+    expl:R`$\lim\limits_{x\to+\infty}${w}=-\infty$ et $\lim\limits_{X\to-\infty}\mathrm{e}^{X}=0$, donc par composition $${ew}\to0$. Par somme, $${u}\to1$, et par composition avec la racine carrée, $f(x)\to\sqrt{1}=1$.`};
+  return { theme:'Limites',
+    q:R`<p>Avec $f(x)=\sqrt{${u}}$ sur $\left[0\,;+\infty\right[$, que vaut $\displaystyle\lim_{x\to+\infty}f(x)$ ?</p>`,
+    opts:[
+      {t:m(PINF), ok:true},
+      {t:m('1'), why:R`$${ew}$ tend vers $+\infty$ (pas vers $0$) : l'expression sous la racine aussi.`},
+      {t:m('0'), why:R`$${w}\to+\infty$, donc $${ew}\to+\infty$.`},
+      {t:`Pas de limite : c'est une forme indéterminée.`, why:`Il n'y a pas de forme indéterminée : chaque étape se fait par composition et somme.`}],
+    hint:R`Cherche d'abord la limite de $${ew}$ par composition.`,
+    expl:R`$\lim\limits_{x\to+\infty}${w}=+\infty$ et $\lim\limits_{X\to+\infty}\mathrm{e}^{X}=+\infty$, donc par composition $${ew}\to+\infty$. Par somme, $${u}\to+\infty$, et par composition avec la racine carrée, $f(x)\to+\infty$.`};
+}
+
+/* C9. Lecture graphique : nombre dérivé et tangente */
+function gTangRead(){
+  const T=pick([1,2,3]);
+  if(T===1){
+    const a=rint(-2,3), y=nz(-4,5);
+    return { theme:'Lecture graphique',
+      q:R`<p>La courbe $\mathcal{C}_f$ d'une fonction $f$ dérivable admet une tangente parallèle à l'axe des abscisses au point C$\left(${a}\,;${y}\right)$.</p><p>Que vaut $f'(${a})$ ?</p>`,
+      opts:[
+        {t:m(R`f'(${a})=0`), ok:true},
+        {t:m(R`f'(${a})=${y}`), why:R`$${y}$ est l'ordonnée du point : $f(${a})=${y}$. Le nombre dérivé est le coefficient directeur de la tangente.`},
+        {t:m(R`f'(${a})=1`), why:`Une droite parallèle à l'axe des abscisses a un coefficient directeur nul.`},
+        {t:`On ne peut pas le savoir sans l'expression de $f$.`, why:`Le nombre dérivé est le coefficient directeur de la tangente, qu'on connaît ici.`}],
+      hint:`$f'(a)$ est le coefficient directeur de la tangente à $\\mathcal{C}_f$ au point d'abscisse $a$.`,
+      expl:R`$f'(${a})$ est le coefficient directeur de la tangente à $\mathcal{C}_f$ au point d'abscisse $${a}$. Cette tangente est parallèle à l'axe des abscisses : son coefficient directeur est nul, donc $f'(${a})=0$.`};
+  }
+  if(T===2){
+    const n=rint(1,3), en=ev(n);
+    return { theme:'Lecture graphique',
+      q:R`<p>La tangente à la courbe $\mathcal{C}_f$ au point A$\left(\dfrac12\,;0\right)$ passe par le point B$\left(1\,;${en}\right)$.</p><p>Que vaut $f'\left(\dfrac12\right)$ ?</p>`,
+      opts:[
+        {t:m(R`2${en}`), ok:true},
+        {t:m(R`\dfrac{${en}}{2}`), why:R`On divise par $x_{\mathrm{B}}-x_{\mathrm{A}}=\dfrac12$ : cela revient à multiplier par $2$.`},
+        {t:m(en), why:R`$${en}$ est la différence des ordonnées ; il faut la diviser par la différence des abscisses, $\dfrac12$.`},
+        {t:m(R`\dfrac{1}{2${en}}`), why:R`Le coefficient directeur est $\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}$, pas l'inverse.`}],
+      hint:R`$f'\left(\frac12\right)$ est le coefficient directeur de la tangente $(\mathrm{AB})$ : $\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}$.`,
+      expl:R`$f'\left(\frac12\right)$ est le coefficient directeur de la tangente $(\mathrm{AB})$ : $\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}=\dfrac{${en}-0}{1-\frac12}=\dfrac{${en}}{\frac12}=2${en}$.`};
+  }
+  const xa=rint(-2,2), d=pick([1,2,3,4]), ya=rint(-3,3), dy=nz(-6,6), xb=xa+d, yb=ya+dy;
+  return { theme:'Lecture graphique',
+    q:R`<p>La tangente à la courbe $\mathcal{C}_f$ au point A$\left(${xa}\,;${ya}\right)$ passe par le point B$\left(${xb}\,;${yb}\right)$.</p><p>Que vaut $f'(${xa})$ ?</p>`,
+    opts:[
+      {t:m(fr(dy,d)), ok:true},
+      {t:m(fr(d,dy)), why:R`Le coefficient directeur est $\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}$, pas l'inverse.`},
+      {t:m(fr(-dy,d)), why:R`Attention à l'ordre : si on calcule $y_{\mathrm{B}}-y_{\mathrm{A}}$ en haut, il faut $x_{\mathrm{B}}-x_{\mathrm{A}}$ en bas.`},
+      {t:m(`${ya}`), why:R`$${ya}$ est l'ordonnée de A, c'est-à-dire $f(${xa})$, pas $f'(${xa})$.`}],
+    hint:R`$f'(${xa})$ est le coefficient directeur de la tangente $(\mathrm{AB})$.`,
+    expl:R`$f'(${xa})$ est le coefficient directeur de la tangente $(\mathrm{AB})$ : $\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}=\dfrac{${yb}-${ya<0?`(${ya})`:ya}}{${xb}-${xa<0?`(${xa})`:xa}}=\dfrac{${dy}}{${d}}=${fr(dy,d)}$.`};
+}
+
+/* C10. Courbes de f, f' et f'' */
+const FAMS = [
+  { f:x=>Math.exp(-x)*(x-1)*(x-2), d1:x=>Math.exp(-x)*(-x*x+5*x-5), d2:x=>Math.exp(-x)*(x*x-7*x+10), xr:[-0.4,6.1], yr:[-0.6,1.15], dx:1, dy:0.5 },
+  { f:x=>x*Math.exp(-x), d1:x=>(1-x)*Math.exp(-x), d2:x=>(x-2)*Math.exp(-x), xr:[-0.6,5.1], yr:[-1.2,1.1], dx:1, dy:0.5 },
+  { f:x=>x*x*Math.exp(-x), d1:x=>(2*x-x*x)*Math.exp(-x), d2:x=>(x*x-4*x+2)*Math.exp(-x), xr:[-0.6,6.1], yr:[-0.6,1.3], dx:1, dy:0.5 },
+  { f:x=>x*x*x/3-x, d1:x=>x*x-1, d2:x=>2*x, xr:[-2.4,2.4], yr:[-2.6,3.2], dx:1, dy:1 } ];
+const CSTY = [ {c:'var(--margin)', d:''}, {c:'var(--pen)', d:'8 5'}, {c:'var(--ok)', d:'2 4'} ];
+function svgCurves(F, order){
+  const W=520, H=330, [x0,x1]=F.xr, [y0,y1]=F.yr;
+  const X=x=>((x-x0)/(x1-x0)*W).toFixed(1), Y=y=>(H-(y-y0)/(y1-y0)*H).toFixed(1);
+  let g='';
+  for(let x=Math.ceil(x0/F.dx)*F.dx; x<=x1; x+=F.dx) g+=`<line x1="${X(x)}" y1="0" x2="${X(x)}" y2="${H}"/>`;
+  for(let y=Math.ceil(y0/F.dy)*F.dy; y<=y1+1e-9; y+=F.dy) g+=`<line x1="0" y1="${Y(y)}" x2="${W}" y2="${Y(y)}"/>`;
+  let lab='';
+  for(let x=Math.ceil(x0/F.dx)*F.dx; x<=x1-0.2; x+=F.dx) if(Math.abs(x)>1e-9) lab+=`<text x="${X(x)}" y="${(+Y(0)+16).toFixed(1)}" text-anchor="middle">${x}</text>`;
+  for(let y=Math.ceil(y0/F.dy)*F.dy; y<=y1-0.1; y+=F.dy) if(Math.abs(y)>1e-9) lab+=`<text x="${(+X(0)-6).toFixed(1)}" y="${(+Y(y)+4).toFixed(1)}" text-anchor="end">${String(+y.toFixed(2)).replace('.',',')}</text>`;
+  lab+=`<text x="${(+X(0)-6).toFixed(1)}" y="${(+Y(0)+16).toFixed(1)}" text-anchor="end">0</text>`;
+  const fns=[F.f,F.d1,F.d2];
+  const paths = order.map((fi,ci)=>{ let d=''; for(let i=0;i<=400;i++){ const x=x0+(x1-x0)*i/400, y=Math.max(y0-5,Math.min(y1+5,fns[fi](x))); d+=(i?'L':'M')+X(x)+' '+Y(y); }
+    return `<path d="${d}" fill="none" stroke="${CSTY[ci].c}" stroke-width="2.6" ${CSTY[ci].d?`stroke-dasharray="${CSTY[ci].d}"`:''}/>`; }).join('');
+  const legend = CSTY.map((s,ci)=>`<span style="display:inline-flex;align-items:center;gap:6px;margin-right:16px"><svg width="34" height="10" aria-hidden="true"><line x1="0" y1="5" x2="34" y2="5" stroke="${s.c}" stroke-width="2.6" ${s.d?`stroke-dasharray="${s.d}"`:''}/></svg>$\\mathcal{C}_${ci+1}$</span>`).join('');
+  return `<svg viewBox="-34 -8 ${W+48} ${H+30}" style="width:100%;max-width:560px;display:block;margin:6px 0" role="img" aria-label="Trois courbes C1, C2 et C3">
+    <defs><clipPath id="clipfff"><rect x="0" y="0" width="${W}" height="${H}"/></clipPath>
+    <marker id="arrfff" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0L10,5L0,10z" fill="var(--ink)"/></marker></defs>
+    <g stroke="var(--line)" stroke-width="1">${g}</g>
+    <line x1="0" y1="${Y(0)}" x2="${W}" y2="${Y(0)}" stroke="var(--ink)" stroke-width="1.3" marker-end="url(#arrfff)"/>
+    <line x1="${X(0)}" y1="${H}" x2="${X(0)}" y2="0" stroke="var(--ink)" stroke-width="1.3" marker-end="url(#arrfff)"/>
+    <g fill="var(--muted)" font-size="13" font-family="var(--font-mono)">${lab}</g>
+    <g clip-path="url(#clipfff)">${paths}</g></svg><p style="margin:0">${legend}</p>`;
+}
+function gFFF(){
+  const F=pick(FAMS), order=shuffle([0,1,2]);          /* order[ci] = fonction tracée par la courbe C_{ci+1} (0 : f, 1 : f', 2 : f'') */
+  const curveOf = fi => order.indexOf(fi)+1;             /* numéro de la courbe qui représente f, f' ou f'' */
+  const txt = a => R`$f$ : $\mathcal{C}_{${a[0]}}$ ; $f'$ : $\mathcal{C}_{${a[1]}}$ ; $f''$ : $\mathcal{C}_{${a[2]}}$`;
+  const good=[curveOf(0),curveOf(1),curveOf(2)];
+  const perms=[[1,2,3],[1,3,2],[2,1,3],[2,3,1],[3,1,2],[3,2,1]].filter(a=>a.join()!==good.join());
+  const wrong=shuffle(perms).slice(0,3).map(a=>{
+    const [cf,cd1,cd2]=a, real=c=>order[c-1];
+    const why = real(cd1)!==real(cf)+1
+      ? R`$\mathcal{C}_{${cd1}}$ ne représente pas la dérivée de la fonction de $\mathcal{C}_{${cf}}$ : compare les variations de $\mathcal{C}_{${cf}}$ avec le signe de $\mathcal{C}_{${cd1}}$.`
+      : R`$\mathcal{C}_{${cd2}}$ ne représente pas la dérivée de la fonction de $\mathcal{C}_{${cd1}}$ : compare les variations de $\mathcal{C}_{${cd1}}$ avec le signe de $\mathcal{C}_{${cd2}}$.`;
+    return {t:txt(a), why};
+  });
+  return { theme:'Lecture graphique',
+    q:R`<p>Les trois courbes représentent une fonction $f$, sa dérivée $f'$ et sa dérivée seconde $f''$. Quelle association est correcte ?</p>` + svgCurves(F, order),
+    opts:[{t:txt(good), ok:true}, ...wrong],
+    hint:`Une fonction est croissante là où sa dérivée est positive : les extremums d'une courbe correspondent aux points où la courbe de sa dérivée coupe l'axe des abscisses.`,
+    expl:R`$\mathcal{C}_{${good[0]}}$ est croissante exactement là où $\mathcal{C}_{${good[1]}}$ est au-dessus de l'axe des abscisses, et ses extremums correspondent aux points où $\mathcal{C}_{${good[1]}}$ coupe cet axe : $\mathcal{C}_{${good[1]}}$ représente la dérivée de la fonction de $\mathcal{C}_{${good[0]}}$. De même, les variations de $\mathcal{C}_{${good[1]}}$ correspondent au signe de $\mathcal{C}_{${good[2]}}$. Donc $f$ : $\mathcal{C}_{${good[0]}}$, $f'$ : $\mathcal{C}_{${good[1]}}$ et $f''$ : $\mathcal{C}_{${good[2]}}$.`};
+}
+
 function safe(gen, ctx){
   for(let t=0;t<40;t++){ const q=gen(ctx); const ts=q.opts.map(o=>o.t); if(new Set(ts).size===ts.length) return q; }
   return gen(ctx);
 }
 function buildSet(){
   const g={t:pick(['A','B']), k:rint(1,3)}, s={v:pick([1,2]), k:rint(1,3)};
-  return [gLimQuot, gTaux, gExpCont, gAsymV, gAsymH, gMethod, gIneq, gPos, gSqrtVar, gDerExp,
-          ()=>gQuot(g), ()=>gLim0(g), gCroiss, gNbDer, ()=>gDef(s), ()=>gDerSqrt(s)].map(f=>safe(f));
+  let p, q; do { p=nz(-3,3); q=nz(-2,4); } while(q<=p || p+q===0);
+  const c={p, q, s:pick([-1,-1,1])};
+  return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gAsymH, gCroiss,
+          ()=>gDef(s), ()=>gDerSqrt(s), ()=>gLimRoot(s),
+          ()=>gSignPoly(c), ()=>gAsymPoly(c), ()=>gDerPoly(c), gDerLin, gVarXexp,
+          gDerExp, ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gNbDer, gTangRead, gFFF,
+          gMethod, gIneq, gPos].map(f=>safe(f));
 }
 
 const LET = ["A","B","C","D"];
