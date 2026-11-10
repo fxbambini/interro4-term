@@ -192,25 +192,19 @@ function gLimQuot(){
 /* 2. Expression du taux d'accroissement en a */
 function gTaux(){
   const par = t => /[+-]/.test(t) ? R`\left(${t}\right)` : t;
-  const F = pick([
-    { name:R`\mathrm{e}^{x}`, D:R`\mathbb{R}`, A:[0,1,2,3,-1], v:t=>R`\mathrm{e}^{${t}}` },
-    { name:R`x^2`, D:R`\mathbb{R}`, A:[0,1,2,3,-2], v:t=>R`${par(t)}^2` },
-    { name:R`x^3`, D:R`\mathbb{R}`, A:[0,1,2,-1], v:t=>R`${par(t)}^3` },
-    { name:R`\dfrac{1}{x}`, D:R`\left]0\,;+\infty\right[`, A:[1,2,3,4], v:t=>R`\dfrac{1}{${t}}` },
-    { name:R`\sqrt{x}`, D:R`\left[0\,;+\infty\right[`, A:[1,2,3,4,9], v:t=>R`\sqrt{${t}}` },
-    { name:R`3x^2+1`, D:R`\mathbb{R}`, A:[0,1,2,3], v:t=>R`3${par(t)}^2+1` } ]);
-  const a=pick(F.A), aS = a<0 ? `(${a})` : `${a}`, ah = `${a}+h`;
+  const F = { A:[0,0,1,2,3,-1,-2], v:t=>R`\mathrm{e}^{${t}}` };
+  const a=pick(F.A), aS = `${a}`, ah = `${a}+h`;
   const fah=F.v(ah), fa=F.v(aS);
   const ok=R`\dfrac{${fah}-${fa}}{h}`;
   return { theme:'Nombre dérivé',
-    q:R`<p>On considère la fonction $f$ définie sur $${F.D}$ par $f(x)=${F.name}$.</p><p>Pour $h\neq0$ (avec $${a}+h$ dans l'ensemble de définition), quelle est l'expression du taux d'accroissement de $f$ en $${a}$ ?</p>`,
+    q:R`<p>Pour tout réel $h\neq0$, quelle est l'expression du taux d'accroissement de la fonction exponentielle en $${a}$ ?</p>`,
     opts:[
       {t:m(ok), ok:true},
       {t:m(R`${fah}-${fa}`), why:`Il manque la division par $h$.`},
       {t:m(R`\dfrac{${fah}-${fa}}{${a===0?ah:a}}`), why:R`Le taux d'accroissement en $a$ est $\dfrac{f(a+h)-f(a)}{h}$ : on divise par $h$.`},
-      {t:m(R`\dfrac{${fa}+h-${fa}}{h}`), why:R`$f(${a}+h)$ n'est pas égal à $f(${a})+h$ : on remplace $x$ par $${a}+h$ dans l'expression de $f$.`}],
+      {t:m(R`\dfrac{${fa}+h-${fa}}{h}`), why:R`$\mathrm{e}^{${a}+h}$ n'est pas égal à $\mathrm{e}^{${a}}+h$ : on calcule l'image de $${a}+h$ par la fonction exponentielle.`}],
     hint:R`Le taux d'accroissement de $f$ en $a$ est $\dfrac{f(a+h)-f(a)}{h}$.`,
-    expl:R`Le taux d'accroissement de $f$ en $a$ est $\dfrac{f(a+h)-f(a)}{h}$. Ici $a=${a}$ : $f(${a}+h)=${fah}$ et $f(${a})=${fa}$, donc le taux d'accroissement vaut $${ok}$.`};
+    expl:R`Le taux d'accroissement d'une fonction $f$ en $a$ est $\dfrac{f(a+h)-f(a)}{h}$. Ici $f$ est la fonction exponentielle et $a=${a}$ : le taux d'accroissement vaut $${ok}$.`};
 }
 
 /* 3. Limite en +inf avec exp(k/x) : continuité */
