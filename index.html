@@ -138,7 +138,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden}
   <header>
     <span class="eyebrow">Terminale · Spécialité maths</span>
     <h1>Entraînement : exponentielle, limites et dérivées</h1>
-    <p class="lede">16 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
+    <p class="lede">17 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
     <div class="toolbar"><span class="serie" id="serie"></span><button class="btn" data-new>Nouvelle série</button></div>
   </header>
   <nav class="dots" id="dots" aria-label="Questions"></nav>
@@ -350,15 +350,15 @@ function gDerExp(){
   const specs=[
     { D:RPLUS, u:R`\sqrt{x}`, up:R`\dfrac{1}{2\sqrt{x}}`, ans:R`\dfrac{\mathrm{e}^{\sqrt{x}}}{2\sqrt{x}}`,
       ds:[[R`\mathrm{e}^{\sqrt{x}}`, R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ : il manque $u'$.`],
-          [R`\sqrt{x}\,\mathrm{e}^{\sqrt{x}-1}`, R`Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`],
+          [R`\sqrt{x}\,\mathrm{e}^{\sqrt{x}-1}`, R`Confusion avec la dérivée de $x\mapsto x^n$, qui ne s'applique pas à l'exponentielle.`],
           [R`\mathrm{e}^{\frac{1}{2\sqrt{x}}}`, R`On multiplie par $u'$ ; on ne le met pas dans l'exposant.`]] },
     { D:R`\mathbb{R}`, u:cx(k,'x^2'), up:cx(2*k), ans:R`${cx(2*k)}\,\mathrm{e}^{${cx(k,'x^2')}}`,
       ds:[[E(cx(k,'x^2')), R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ : il manque $u'$.`],
-          [R`${cx(k,'x^2')}\,\mathrm{e}^{${cx(k,'x^2')}-1}`, R`Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`],
+          [R`${cx(k,'x^2')}\,\mathrm{e}^{${cx(k,'x^2')}-1}`, R`Confusion avec la dérivée de $x\mapsto x^n$, qui ne s'applique pas à l'exponentielle.`],
           [E(cx(2*k)), R`On multiplie par $u'$ ; on ne le met pas dans l'exposant.`]] },
     { D:RPLUS, u:R`\frac{1}{x}`, up:R`-\dfrac{1}{x^2}`, ans:R`-\dfrac{\mathrm{e}^{\frac{1}{x}}}{x^2}`,
       ds:[[R`\mathrm{e}^{\frac{1}{x}}`, R`$(\mathrm{e}^{u})'=u'\,\mathrm{e}^{u}$ : il manque $u'$.`],
-          [R`\dfrac{\mathrm{e}^{\frac{1}{x}}}{x^2}`, R`Attention au signe : $\left(\dfrac1x\right)'=-\dfrac{1}{x^2}$.`],
+          [R`\dfrac{\mathrm{e}^{\frac{1}{x}}}{x^2}`, R`Attention au signe : la dérivée de $x\mapsto\dfrac1x$ est $x\mapsto-\dfrac{1}{x^2}$.`],
           [R`\mathrm{e}^{-\frac{1}{x^2}}`, R`On multiplie par $u'$ ; on ne le met pas dans l'exposant.`]] }];
   const s=pick(specs);
   return { theme:'Dérivées',
@@ -387,7 +387,7 @@ function gQuot(ctx){
         F.k===1 ? {t:R`$g'(x)=\mathrm{e}^{\sqrt{x}}$`, why:R`On ne dérive pas un quotient en dérivant séparément le numérateur et le dénominateur.`}
                 : {t:R`$g'(x)=\dfrac{${eu}\left(\sqrt{x}-1\right)}{2x\sqrt{x}}$`, why:R`$u'(x)=\dfrac{${F.k}\,${eu}}{2\sqrt x}$ : il manque le facteur $${F.k}$.`}],
       hint:R`$u(x)=${eu}$ et $v(x)=\sqrt x$. Calcule $u'$ avec $(\mathrm{e}^{w})'=w'\,\mathrm{e}^{w}$, puis mets $${eu}$ en facteur.`,
-      expl:R`<p>J'applique les formules du cours $\left(\dfrac{u}{v}\right)'=\dfrac{u'v-uv'}{v^2}$, $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$ et $\left(\sqrt{x}\right)'=\dfrac{1}{2\sqrt{x}}$.</p><p>Pour tout réel $x>0$ :</p>$$\begin{aligned}g'(x)&=\dfrac{\dfrac{${F.kS}${eu}}{2\sqrt{x}}\times\sqrt{x}-${eu}\times\dfrac{1}{2\sqrt{x}}}{\left(\sqrt{x}\right)^2}\\[2mm] &=\dfrac{\dfrac{${eu}\left(${u}-1\right)}{2\sqrt{x}}}{x}\\[2mm] &=\boxed{\dfrac{${eu}\left(${u}-1\right)}{2x\sqrt{x}}}\end{aligned}$$` };
+      expl:R`<p>J'applique les formules du cours $\left(\dfrac{u}{v}\right)'=\dfrac{u'v-uv'}{v^2}$, $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$ et $\left(\sqrt{u}\right)'=\dfrac{u'}{2\sqrt{u}}$.</p><p>Pour tout réel $x>0$ :</p>$$\begin{aligned}g'(x)&=\dfrac{\dfrac{${F.kS}${eu}}{2\sqrt{x}}\times\sqrt{x}-${eu}\times\dfrac{1}{2\sqrt{x}}}{\left(\sqrt{x}\right)^2}\\[2mm] &=\dfrac{\dfrac{${eu}\left(${u}-1\right)}{2\sqrt{x}}}{x}\\[2mm] &=\boxed{\dfrac{${eu}\left(${u}-1\right)}{2x\sqrt{x}}}\end{aligned}$$` };
   }
   const kx=F.kx, ek=E(kx);
   return { theme:'Dérivées', q,
@@ -631,7 +631,7 @@ function gDerPoly(c){
       {t:m(R`f'(x)=\left(${lin(2,b)}\right)${ex}`), why:R`$(uv)'=u'v+uv'$ : il manque le terme $u'v$, avec $u(x)=${ex}$.`},
       s<0 ? {t:m(R`f'(x)=\left(${lin(2*s,s*b)}\right)${ex}`), why:`On ne dérive pas un produit en multipliant les dérivées.`}
           : {t:m(R`f'(x)=\left(${poly2(1,b+2,cc)}\right)${ex}`), why:R`En développant $${ex}\left(${lin(2,b)}\right)$, il ne faut pas oublier le terme constant $${b}${ex}$.`},
-      {t:m(R`f'(x)=\left(${sgnErr}\right)${ex}`), why:R`Attention au signe : $\left(${ex}\right)'=${up}$.`}],
+      {t:m(R`f'(x)=\left(${sgnErr}\right)${ex}`), why:R`Attention au signe : la dérivée de $x\mapsto${ex}$ est $x\mapsto${up}$.`}],
     hint:R`J'applique la formule du cours $(uv)'=u'v+uv'$ avec $u(x)=${ex}$ et $v(x)=${P}$, puis je factorise par $${ex}$.`,
     expl:R`<p>J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$.</p><p>Pour tout réel $x$ :</p>$$\begin{aligned}f'(x)&=${s<0?'-':''}${ex}\left(${P}\right)+${ex}\left(${lin(2,b)}\right)\\ &=${ex}\left(${s<0?poly2(-1,-b,-cc):P}+2x${sg(b)}\right)\\ &=\boxed{\left(${ok}\right)${ex}}\end{aligned}$$`};
 }
@@ -653,7 +653,7 @@ function gDerLin(){
       {t:m(R`f'(x)=\left(${ok}\right)${ex}`), ok:true},
       {t:m(R`f'(x)=${prod}`), why:`On ne dérive pas un produit en multipliant les dérivées.`},
       {t:m(R`f'(x)=\left(${miss}\right)${ex}`), why:R`$(uv)'=u'v+uv'$ : il manque le terme $u'v=${co(a)}${ex}$.`},
-      {t:m(R`f'(x)=\left(${lin(a,a+b)}\right)${ex}`), why:R`$\left(${ex}\right)'=${vp}$ : il ne faut pas oublier le facteur $${wp}$.`}],
+      {t:m(R`f'(x)=\left(${lin(a,a+b)}\right)${ex}`), why:R`La dérivée de $x\mapsto${ex}$ est $x\mapsto${vp}$ : il ne faut pas oublier le facteur $${wp}$.`}],
     hint:R`J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{w}\right)'=w'\mathrm{e}^{w}$.`,
     expl:R`<p>J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$.</p><p>Pour tout réel $x$ :</p>$$\begin{aligned}f'(x)&=${co(a)}${ex}+\left(${u}\right)\times${deg2?R`\left(${cx(2*k)}\,${ex}\right)`:R`\left(${co(k)}${ex}\right)`}\\ &=${dev}\\ &=\boxed{\left(${ok}\right)${ex}}\end{aligned}$$`};
 }
@@ -809,14 +809,14 @@ function gDerSimple(){
     ok=R`${a*k}\,${E(w)}`;
     ds=[[R`${a}\,${E(w)}`, R`Il manque le facteur $u'(x)=${k}$.`],
         [R`${a}\,${E(cx(k))}`, R`$\mathrm{e}^{${w}}$ ne se dérive pas en $\mathrm{e}^{${cx(k)}}$ : on garde l'exposant et on multiplie par $u'$.`],
-        [R`${a}\left(${w}\right)\mathrm{e}^{${lin(k,mm-1)}}`, R`Confusion avec $(x^n)'=nx^{n-1}$, qui ne s'applique pas à l'exponentielle.`]];
+        [R`${a}\left(${w}\right)\mathrm{e}^{${lin(k,mm-1)}}`, R`Confusion avec la dérivée de $x\mapsto x^n$, qui ne s'applique pas à l'exponentielle.`]];
     expl=R`J'applique la formule du cours $${form}$ avec $u(x)=${w}$ et $u'(x)=${k}$ : $f'(x)=${a}\times${k<0?`(${k})`:k}\,${E(w)}=${ok}$.`; }
   else { const p3=nz(-3,3), p2=nz(-5,5), p1=nz(-6,6), p0=nz(-9,9);
-    const P = `${cx(p3,'x^3')}${st(p2,'x^2')}${st(p1)}${sg(p0)}`; D=R`\mathbb{R}`; f=P; form=R`\left(x^n\right)'=nx^{n-1}`;
+    const P = `${cx(p3,'x^3')}${st(p2,'x^2')}${st(p1)}${sg(p0)}`; D=R`\mathbb{R}`; f=P; form=R`\left(u^n\right)'=nu'u^{n-1}`;
     ok=`${cx(3*p3,'x^2')}${st(2*p2)}${sg(p1)}`;
     ds=[[`${cx(3*p3,'x^2')}${st(2*p2)}${sg(p1)}${sg(p0)}`, `La dérivée d'une constante est nulle.`],
-        [`${cx(3*p3,'x^2')}${st(p2)}${sg(p1)}`, R`$\left(${cx(p2,'x^2')}\right)'=${cx(2*p2)}$ : il manque le facteur $2$.`],
-        [`${cx(p3,'x^2')}${st(p2)}${sg(p1)}`, R`$(x^n)'=nx^{n-1}$ : on multiplie par l'exposant $n$.`]];
+        [`${cx(3*p3,'x^2')}${st(p2)}${sg(p1)}`, R`La dérivée de $x\mapsto${cx(p2,'x^2')}$ est $x\mapsto${cx(2*p2)}$ : il manque le facteur $2$.`],
+        [`${cx(p3,'x^2')}${st(p2)}${sg(p1)}`, R`La dérivée de $x\mapsto x^n$ est $x\mapsto nx^{n-1}$ : on multiplie par l'exposant $n$.`]];
     expl=R`J'applique la formule du cours $${form}$ terme à terme : $f'(x)=3\times${p3<0?`(${p3})`:p3}x^2+2\times${p2<0?`(${p2})`:p2}x${sg(p1)}=${ok}$.`; }
   return { theme:'Dérivées',
     q:R`<p>On considère la fonction $f$ définie et dérivable sur $${D}$ par $f(x)=${f}$.</p><p>Calculer $f'(x)$.</p>`,
@@ -889,6 +889,34 @@ function gTangS(t){
     expl:R`$f'(${xA})$ est le coefficient directeur de la tangente à $\mathcal{C}_f$ en A, qui passe par A$\left(${xA}\,;${yA}\right)$ et B$\left(${xB}\,;${yB}\right)$ : $f'(${xA})=\dfrac{y_{\mathrm{B}}-y_{\mathrm{A}}}{x_{\mathrm{B}}-x_{\mathrm{A}}}=\dfrac{${yB}-${pz(yA)}}{${xB}-${pz(xA)}}=\dfrac{${dy}}{${dx}}=${ok}$.`};
 }
 
+/* C13. Dérivée (ou dérivée seconde) de (ax+b)^n, n >= 4 */
+function gPow(){
+  const a=pick([-0.5,0.5,-1,2,-2,3,-3,4]), b=nz(-5,5), n=rint(4,7), second=Math.random()<1/3;
+  const num=v=>String(+v.toFixed(4)).replace('.','{,}'), cf=v=>v===1?'':v===-1?'-':num(v), pa=v=>v<0?R`\left(${num(v)}\right)`:num(v);
+  const u=R`${cf(a)}x${sg(b)}`, pw=(c,e)=>R`${cf(c)}\left(${u}\right)^{${e}}`;
+  const form=R`\left(u^n\right)'=nu'u^{n-1}`, head=R`<p>J'applique la formule du cours $${form}$.</p><p>Pour tout réel $x$ :</p>`;
+  const q0=R`<p>On considère la fonction $f$ définie sur $\mathbb{R}$ par $f(x)=\left(${u}\right)^{${n}}$. On admet que $f$ est deux fois dérivable sur $\mathbb{R}$.</p>`;
+  if(!second) return { theme:'Dérivées',
+    q:q0+R`<p>Calculer $f'(x)$.</p>`,
+    opts:[
+      {t:m(R`f'(x)=${pw(n*a,n-1)}`), ok:true},
+      {t:m(R`f'(x)=${pw(n,n-1)}`), why:R`Il manque le facteur $u'$ : ici la dérivée de $x\mapsto${u}$ est $x\mapsto${num(a)}$.`},
+      {t:m(R`f'(x)=${pw(n*a,n)}`), why:R`L'exposant baisse de $1$ : c'est $u^{n-1}$.`},
+      {t:m(R`f'(x)=${pw(a,n-1)}`), why:R`Il manque le facteur $n=${n}$.`}],
+    hint:R`J'applique la formule du cours $${form}$, sans oublier le facteur $u'$.`,
+    expl:head+R`$$f'(x)=${n}\times${pa(a)}\times\left(${u}\right)^{${n-1}}=\boxed{${pw(n*a,n-1)}}$$`};
+  const c2=n*(n-1)*a*a;
+  return { theme:'Dérivées',
+    q:q0+R`<p>Calculer $f''(x)$.</p>`,
+    opts:[
+      {t:m(R`f''(x)=${pw(c2,n-2)}`), ok:true},
+      {t:m(R`f''(x)=${pw(n*(n-1),n-2)}`), why:R`Il manque le facteur $u'$ à chaque dérivation : la dérivée de $x\mapsto${u}$ est $x\mapsto${num(a)}$.`},
+      {t:m(R`f''(x)=${pw(n*(n-1)*a,n-2)}`), why:R`Le facteur $u'=${num(a)}$ apparaît à chacune des deux dérivations.`},
+      {t:m(R`f''(x)=${pw(n*a,n-1)}`), why:R`C'est $f'(x)$ : il faut dériver une deuxième fois.`}],
+    hint:R`Calcule d'abord $f'(x)$ avec la formule du cours $${form}$, puis dérive $f'$ de la même façon.`,
+    expl:head+R`$$\begin{aligned}f'(x)&=${n}\times${pa(a)}\times\left(${u}\right)^{${n-1}}=${pw(n*a,n-1)}\\ f''(x)&=${num(n*a)}\times${n-1}\times${pa(a)}\times\left(${u}\right)^{${n-2}}=\boxed{${pw(c2,n-2)}}\end{aligned}$$`};
+}
+
 const fixMath = str => typeof str!=='string' ? str : str.replace(/\$\$[\s\S]*?\$\$|\$[^$]*\$/g, mm => mm.replace(/</g,'\\lt ').replace(/>/g,'\\gt '));
 function fixQ(q){ q.q=fixMath(q.q); q.hint=fixMath(q.hint); q.expl=fixMath(q.expl); q.opts.forEach(o=>{ o.t=fixMath(o.t); if(o.why) o.why=fixMath(o.why); }); return q; }
 function safe(gen, ctx){
@@ -900,7 +928,7 @@ function buildSet(){
   let p, q; do { p=nz(-3,3); q=nz(-2,4); } while(q<=p || p+q===0);
   const tg=mkTang(); tg.horiz=Math.random()<1/3;   /* une seule lecture graphique : tangente horizontale (1 fois sur 3) ou tangente (AB) */
   const c={p, q, s:pick([-1,-1,1]), deg2:Math.random()<.5};   /* deg2 : la question de dérivée porte sur le polynôme du second degré de la question précédente */
-  return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gCroiss,
+  return [gFormule, gDefCroiss, gTaux, gPow, gLimQuot, gAsymV, gExpCont, gCroiss,
           ()=>gDerSqrt(s), ()=>gLimRoot(s),
           ()=>gAsymPoly(c), ()=>(c.deg2 ? gDerPoly(c) : gDerLin()),
           ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gFFF, ()=>(tg.horiz ? gTangH(tg) : gTangS(tg))].map(f=>safe(f));
