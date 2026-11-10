@@ -138,7 +138,7 @@ mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden}
   <header>
     <span class="eyebrow">Terminale · Spécialité maths</span>
     <h1>Entraînement : exponentielle, limites et dérivées</h1>
-    <p class="lede">17 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
+    <p class="lede">16 questions dans l'esprit du contrôle : cours, limites, dérivées, étude de fonction et lecture graphique. Les valeurs et la forme des questions changent à chaque nouvelle série et à chaque rechargement de la page. Choisis une réponse, lis la correction, puis passe à la suivante.</p>
     <div class="toolbar"><span class="serie" id="serie"></span><button class="btn" data-new>Nouvelle série</button></div>
   </header>
   <nav class="dots" id="dots" aria-label="Questions"></nav>
@@ -177,7 +177,7 @@ function gLimQuot(){
   const a=nz(-3,4), right=Math.random()<.5, neg=Math.random()<.35, rev=Math.random()<.45;
   const num=E(neg?'-x':'x'), nv=ev(neg?-a:a), den=rev?`${a}-x`:xm(a), pos=right!==rev;
   const cond=right?`x>${a}`:`x<${a}`, z=pos?'0^+':'0^-';
-  const res=pos?PINF:MINF, oth=pos?MINF:PINF;
+  const res=pos?PINF:MINF, oth=pos?MINF:PINF, lm=R`\lim_{\substack{x\to ${a}\\ \phantom{x}${right?'>':'<'}\phantom{${a}}}}`;
   return { theme:'Limites',
     q:R`<p>Calculer $\displaystyle\lim_{\substack{x\to ${a}\\ \phantom{x}${right?'>':'<'}\phantom{${a}}}} \dfrac{${num}}{${den}}$.</p>`,
     opts:[
@@ -186,7 +186,7 @@ function gLimQuot(){
       {t:m(nv), why:R`On ne peut pas remplacer $x$ par $${a}$ : le dénominateur s'annule.`},
       {t:m('0'), why:R`Un numérateur qui tend vers un réel strictement positif, divisé par un dénominateur qui tend vers $0$, donne une limite infinie.`}],
     hint:R`Cherche la limite du numérateur, puis celle du dénominateur <b>avec son signe</b>.`,
-    expl:R`Le numérateur tend vers $${nv}>0$ et, pour $${cond}$, $${den}\to ${z}$. Par quotient, la limite vaut $${res}$ : la droite d'équation $x=${a}$ est asymptote verticale à la courbe.`};
+    expl:R`<p>Pour $${cond}$, on a $${den}${pos?'>':'<'}0$.</p>$$\left.\begin{aligned}${lm}\,${num}&=${nv}\\ ${lm}\,${den}&=${z}\end{aligned}\right\}\ \text{Par quotient :}\ \boxed{${lm}\,\dfrac{${num}}{${den}}=${res}}$$<p>La courbe admet une asymptote verticale d'équation $x=${a}$.</p>`};
 }
 
 /* 2. Expression du taux d'accroissement en a */
@@ -225,7 +225,7 @@ function gExpCont(){
       {t:m(ev(k)+sg(c)), why:R`Quand $x\to+\infty$, $\dfrac{${k}}{x}$ tend vers $0$, pas vers $${k}$.`},
       {t:m(PINF), why:R`Chaque terme a une limite finie : il n'y a pas de forme indéterminée ici.`}],
     hint:R`Cherche la limite de $\dfrac{${k}}{x}$, puis utilise $\mathrm{e}^0=1$.`,
-    expl:R`Quand $x\to+\infty$, $\dfrac{${k}}{x}\to0$ et $\dfrac{${mm}}{x}\to0$. Comme $\exp$ est continue en $0$, $\exp\left(\frac{${k}}{x}\right)\to\mathrm{e}^0=1$. Par somme, la limite vaut $1+0${sg(c)}=${1+c}$.`};
+    expl:R`$$\left.\begin{aligned}&\lim_{x\to+\infty}\dfrac{${k}}{x}=0\\ &\lim_{X\to0}\mathrm{e}^{X}=1\end{aligned}\right\}\ \text{Par composition :}\ \lim_{x\to+\infty}\exp\left(\dfrac{${k}}{x}\right)=1$$<p>De plus, $\lim\limits_{x\to+\infty}\dfrac{${mm}}{x}=0$.</p><p>Par somme, $\boxed{\lim\limits_{x\to+\infty}\left(${expr}\right)=${1+c}}$.</p>`};
 }
 
 /* 4. Asymptote verticale : exp(x)/(x^2-c^2) */
@@ -235,7 +235,7 @@ function gAsymV(){
   const D = dom==='L' ? I(MINF,-c) : dom==='R' ? I(c,PINF) : I(-c,c);
   const inside = dom==='M', c2=c*c, z=inside?'0^-':'0^+', res=inside?MINF:PINF, oth=inside?PINF:MINF;
   const sgnTxt = inside ? R`$x^2<${c2}$, donc $x^2-${c2}<0$` : R`$x^2>${c2}$, donc $x^2-${c2}>0$`;
-  const nv=ev(p);
+  const nv=ev(p), sd = dom==='L' ? '<' : dom==='R' ? '>' : (p<0 ? '>' : '<'), lm=R`\lim_{\substack{x\to ${p}\\ \phantom{x}${sd}\phantom{${p}}}}`;
   return { theme:'Limites',
     q:R`<p>On considère $f$ définie sur $${D}$ par $f(x)=\dfrac{\mathrm{e}^{x}}{x^2-${c2}}$.</p><p>Quelle est la limite de $f$ en $${p}$, et comment l'interpréter ?</p>`,
     opts:[
@@ -244,7 +244,7 @@ function gAsymV(){
       {t:R`$${res}$ ; la droite d'équation $y=${p}$ est asymptote horizontale à $\mathcal{C}_f$.`, why:R`Une limite infinie quand $x$ tend vers un réel $a$ donne une asymptote <b>verticale</b> d'équation $x=a$.`},
       {t:R`$0$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_f$.`, why:R`C'est le dénominateur qui tend vers $0$, pas le quotient.`}],
     hint:R`Le signe de $x^2-${c2}$ se lit dans un tableau de signes : racines $-${c}$ et $${c}$, positif à l'extérieur des racines.`,
-    expl:R`Le numérateur tend vers $${nv}>0$. Sur $${D}$, ${sgnTxt}, donc le dénominateur tend vers $${z}$. Par quotient, $\lim\limits_{x\to ${p}}f(x)=${res}$ : la droite d'équation $x=${p}$ est asymptote verticale à $\mathcal{C}_f$.`};
+    expl:R`<p>Tableau de signes du dénominateur (racines $-${c}$ et $${c}$, « signe de $a$ » à l'extérieur des racines) :</p>$$\begin{array}{|c|ccccccc|}\hline x & -\infty & & -${c} & & ${c} & & +\infty\\\hline x^2-${c2} & & + & 0 & - & 0 & + & \\\hline\end{array}$$$$\left.\begin{aligned}${lm}\,\mathrm{e}^{x}&=${nv}\\ ${lm}\,x^2-${c2}&=${z}\end{aligned}\right\}\ \text{Par quotient :}\ \boxed{${lm}\,\dfrac{\mathrm{e}^{x}}{x^2-${c2}}=${res}}$$<p>La courbe $\mathcal{C}_f$ admet une asymptote verticale d'équation $x=${p}$.</p>`};
 }
 
 /* 5. Asymptote horizontale */
@@ -341,7 +341,7 @@ function gSqrtVar(){
       {t:R`Pour tout $x\geqslant0$, $f(x)\geqslant0$, donc $f$ est croissante.`, why:R`Une fonction positive n'est pas forcément croissante.`},
       {t:f1, why:R`Comparer deux valeurs ne suffit pas à prouver qu'une fonction est croissante.`}],
     hint:R`$(\sqrt{u})'=\dfrac{u'}{2\sqrt{u}}$. Quel est $u'$ ici ?`,
-    expl:R`Avec $u(x)=${u}$, $u'(x)=${up}$, donc $f'(x)=\dfrac{u'(x)}{2\sqrt{u(x)}}=${fp}$. ${posTxt}`};
+    expl:R`<p>J'applique la formule du cours $\left(\sqrt{u}\right)'=\dfrac{u'}{2\sqrt{u}}$.</p><p>Pour tout réel $x\geqslant0$ : $f'(x)=${fp}$.</p><p>${posTxt}</p>`};
 }
 
 /* 10. Dérivée de exp(u) */
@@ -387,7 +387,7 @@ function gQuot(ctx){
         F.k===1 ? {t:R`$g'(x)=\mathrm{e}^{\sqrt{x}}$`, why:R`On ne dérive pas un quotient en dérivant séparément le numérateur et le dénominateur.`}
                 : {t:R`$g'(x)=\dfrac{${eu}\left(\sqrt{x}-1\right)}{2x\sqrt{x}}$`, why:R`$u'(x)=\dfrac{${F.k}\,${eu}}{2\sqrt x}$ : il manque le facteur $${F.k}$.`}],
       hint:R`$u(x)=${eu}$ et $v(x)=\sqrt x$. Calcule $u'$ avec $(\mathrm{e}^{w})'=w'\,\mathrm{e}^{w}$, puis mets $${eu}$ en facteur.`,
-      expl:R`$u(x)=${eu}$, $u'(x)=\dfrac{${F.kS}${eu}}{2\sqrt x}$ ; $v(x)=\sqrt x$, $v'(x)=\dfrac{1}{2\sqrt x}$. Alors $u'v-uv'=\dfrac{${F.kS}${eu}}{2}-\dfrac{${eu}}{2\sqrt x}=\dfrac{${eu}\left(${u}-1\right)}{2\sqrt x}$. En divisant par $v^2=x$ : $g'(x)=\dfrac{${eu}\left(${u}-1\right)}{2x\sqrt x}$.` };
+      expl:R`<p>J'applique les formules du cours $\left(\dfrac{u}{v}\right)'=\dfrac{u'v-uv'}{v^2}$, $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$ et $\left(\sqrt{x}\right)'=\dfrac{1}{2\sqrt{x}}$.</p><p>Pour tout réel $x>0$ :</p>$$\begin{aligned}g'(x)&=\dfrac{\dfrac{${F.kS}${eu}}{2\sqrt{x}}\times\sqrt{x}-${eu}\times\dfrac{1}{2\sqrt{x}}}{\left(\sqrt{x}\right)^2}\\[2mm] &=\dfrac{\dfrac{${eu}\left(${u}-1\right)}{2\sqrt{x}}}{x}\\[2mm] &=\boxed{\dfrac{${eu}\left(${u}-1\right)}{2x\sqrt{x}}}\end{aligned}$$` };
   }
   const kx=F.kx, ek=E(kx);
   return { theme:'Dérivées', q,
@@ -397,11 +397,12 @@ function gQuot(ctx){
       {t:R`$g'(x)=\dfrac{${ek}\left(${kx}-1\right)}{x}$`, why:R`On divise par $v^2=x^2$, pas par $x$.`},
       {t:R`$g'(x)=${F.kS}${ek}$`, why:R`On ne dérive pas un quotient en dérivant séparément le numérateur et le dénominateur.`}],
     hint:R`$u(x)=${ek}$ et $v(x)=x$. Applique $\left(\dfrac{u}{v}\right)'=\dfrac{u'v-uv'}{v^2}$, puis mets $${ek}$ en facteur.`,
-    expl:R`$u(x)=${ek}$, $u'(x)=${F.kS}${ek}$ ; $v(x)=x$, $v'(x)=1$. Alors $u'v-uv'=${kx}\,${ek}-${ek}=${ek}\left(${kx}-1\right)$. En divisant par $v^2=x^2$ : $g'(x)=\dfrac{${ek}\left(${kx}-1\right)}{x^2}$.` };
+    expl:R`<p>J'applique les formules du cours $\left(\dfrac{u}{v}\right)'=\dfrac{u'v-uv'}{v^2}$ et $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$.</p><p>Pour tout réel $x>0$ :</p>$$g'(x)=\dfrac{${F.kS}${ek}\times x-${ek}\times1}{x^2}=\boxed{\dfrac{${ek}\left(${kx}-1\right)}{x^2}}$$` };
 }
 
 /* 12. Limite en 0 du quotient */
 function gLim0(ctx){
+  const BR=R`\left.\begin{aligned}`, ER=R`\end{aligned}\right\}`, l0=R`\lim_{\substack{x\to 0\\ \phantom{x}>\phantom{0}}}`;
   const F=gFun(ctx);
   return { theme:'Limites',
     q:R`<p>Avec $g(x)=${F.g}$ sur $\left]0\,;+\infty\right[$, quelle est la limite de $g$ en $0$, et comment l'interpréter ?</p>`,
@@ -411,7 +412,7 @@ function gLim0(ctx){
       {t:m('0'), why:R`C'est le dénominateur qui tend vers $0$ : le quotient devient très grand.`},
       {t:R`$+\infty$ ; la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_g$.`, why:R`Une limite infinie en $0$ donne une asymptote verticale d'équation $x=0$.`}],
     hint:R`Que vaut $\mathrm{e}^{${F.expo}}$ quand $x\to0$ ? Et le signe de $${F.den}$ ?`,
-    expl:R`$\lim\limits_{x\to0}\mathrm{e}^{${F.expo}}=\mathrm{e}^0=1$ et $\lim\limits_{x\to0}${F.den}=0^+$. Par quotient, $\lim\limits_{x\to0}g(x)=+\infty$ : l'axe des ordonnées est asymptote verticale à $\mathcal{C}_g$.`};
+    expl:R`$$${BR}&${l0}\,${F.expo}=0\\ &\lim_{X\to0}\mathrm{e}^{X}=1${ER}\ \text{Par composition :}\ ${l0}\,\mathrm{e}^{${F.expo}}=1$$$$${BR}${l0}\,\mathrm{e}^{${F.expo}}&=1\\ ${l0}\,${F.den}&=0^+${ER}\ \text{Par quotient :}\ \boxed{${l0}\,g(x)=+\infty}$$<p>La courbe $\mathcal{C}_g$ admet une asymptote verticale d'équation $x=0$ (l'axe des ordonnées).</p>`};
 }
 
 /* 13. Croissance comparée : on transforme l'expression, puis composition */
@@ -540,7 +541,7 @@ function gDerSqrt(s){
       {t:R`$f'(x)=\dfrac{1}{2\sqrt{${u}}}$`, why:R`$(\sqrt u)'=\dfrac{u'}{2\sqrt u}$ : il manque $u'$ au numérateur.`},
       {t:R`$f'(x)=\dfrac{${upT}}{\sqrt{${u}}}$`, why:R`Il manque le facteur $2$ de la formule $\dfrac{u'}{2\sqrt u}$.`}],
     hint:R`Pose $u(x)=${u}$ et calcule $u'(x)$ avec soin.`,
-    expl:R`$u(x)=${u}$, donc $u'(x)=${upT}$. D'où $f'(x)=\dfrac{u'(x)}{2\sqrt{u(x)}}=\dfrac{${upT}}{2\sqrt{${u}}}${simp}$.`};
+    expl:R`<p>J'applique les formules du cours $\left(\sqrt{u}\right)'=\dfrac{u'}{2\sqrt{u}}$ et $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$.</p><p>Pour tout réel $x>0$ :</p>$$f'(x)=${F.v===1?R`\dfrac{-\left(-${F.k}\right)${ew}}{2\sqrt{${u}}}=`:''}${F.k%2===0?R`\dfrac{${upT}}{2\sqrt{${u}}}=\boxed{${ans}}`:R`\boxed{\dfrac{${upT}}{2\sqrt{${u}}}}`}$$`};
 }
 
 /* ===== Questions ajoutées : cours, étude de fonction, lecture graphique ===== */
@@ -601,6 +602,8 @@ function gSignPoly(c){
 function gAsymPoly(c){
   const F=gPoly(c), {p,q,s,P,ex}=F;
   const zero = s<0 ? PINF : MINF, inf = s<0 ? MINF : PINF;
+  const BR=R`\left.\begin{aligned}`, ER=R`\end{aligned}\right\}`, cf=n=>n===1?'+':n===-1?'-':sg(n);
+  const fac=R`1${F.b>0?'+':'-'}\dfrac{${Math.abs(F.b)}}{x}${F.cc>0?'+':'-'}\dfrac{${Math.abs(F.cc)}}{x^2}`;
   const croiss = s<0 ? R`$f(x)=\dfrac{x^2}{\mathrm{e}^{x}}${F.b?R`${sg(F.b)}\dfrac{x}{\mathrm{e}^{x}}`:''}${F.cc?R`${sg(F.cc)}\dfrac{1}{\mathrm{e}^{x}}`:''}$`
                      : R`$f(x)=x^2\mathrm{e}^{x}${F.b?R`${sg(F.b)}x\mathrm{e}^{x}`:''}${F.cc?R`${sg(F.cc)}\mathrm{e}^{x}`:''}$`;
   return { theme:'Étude de fonction',
@@ -611,7 +614,9 @@ function gAsymPoly(c){
       {t:R`Les droites d'équations $x=${p}$ et $x=${q}$.`, why:R`$f$ est définie et continue sur $\mathbb{R}$ : il n'y a pas d'asymptote verticale. En $${p}$ et $${q}$, $f$ s'annule.`},
       {t:R`Aucune : en $${zero}$, on obtient une forme indéterminée.`, why:`Une forme indéterminée se lève : ici, par croissance comparée.`}],
     hint:R`Cherche les limites en $-\infty$ et en $+\infty$. Une forme indéterminée avec une exponentielle se lève par croissance comparée.`,
-    expl:R`En $${inf}$ : $${ex}\to+\infty$ et $${P}\to+\infty$, donc $f(x)\to+\infty$ (pas d'asymptote). En $${zero}$ : ${croiss}, et chaque terme tend vers $0$ par croissance comparée, donc $f(x)\to0$ : la droite d'équation $y=0$ est asymptote horizontale en $${zero}$. $f$ est continue sur $\mathbb{R}$ : pas d'asymptote verticale.`};
+    expl:R`<p><b>En $${inf}$.</b> Pour tout réel $x$ non nul, $${P}=x^2\left(${fac}\right)$.</p>$$${BR}\lim_{x\to${inf}}x^2&=+\infty\\ \lim_{x\to${inf}}${fac}&=1${ER}\ \text{Par produit :}\ \lim_{x\to${inf}}${P}=+\infty$$${s<0 ? R`$$${BR}&\lim_{x\to-\infty}-x=+\infty\\ &\lim_{X\to+\infty}\mathrm{e}^{X}=+\infty${ER}\ \text{Par composition :}\ \lim_{x\to-\infty}\mathrm{e}^{-x}=+\infty$$` : R`<p>De plus, $\lim\limits_{x\to+\infty}\mathrm{e}^{x}=+\infty$.</p>`}<p>Par produit, $\lim\limits_{x\to${inf}}f(x)=+\infty$ : pas d'asymptote horizontale en $${inf}$.</p>${s<0
+ ? R`<p><b>En $+\infty$.</b> Pour tout réel $x$, $f(x)=\dfrac{x^2}{\mathrm{e}^{x}}${cf(F.b)}\dfrac{x}{\mathrm{e}^{x}}${F.cc>0?'+':'-'}\dfrac{${Math.abs(F.cc)}}{\mathrm{e}^{x}}$.</p><p>D'après les croissances comparées, $\lim\limits_{x\to+\infty}\dfrac{\mathrm{e}^{x}}{x^2}=+\infty$ et $\lim\limits_{x\to+\infty}\dfrac{\mathrm{e}^{x}}{x}=+\infty$, donc par quotient $\lim\limits_{x\to+\infty}\dfrac{x^2}{\mathrm{e}^{x}}=0$ et $\lim\limits_{x\to+\infty}\dfrac{x}{\mathrm{e}^{x}}=0$.</p><p>De plus $\lim\limits_{x\to+\infty}\mathrm{e}^{x}=+\infty$, donc $\lim\limits_{x\to+\infty}\dfrac{${Math.abs(F.cc)}}{\mathrm{e}^{x}}=0$.</p>`
+ : R`<p><b>En $-\infty$.</b> Pour tout réel $x$, $f(x)=x^2\mathrm{e}^{x}${cf(F.b)}x\mathrm{e}^{x}${cf(F.cc)}\mathrm{e}^{x}$.</p><p>D'après les croissances comparées, $\lim\limits_{x\to-\infty}x^2\mathrm{e}^{x}=0$ et $\lim\limits_{x\to-\infty}x\mathrm{e}^{x}=0$. De plus $\lim\limits_{x\to-\infty}\mathrm{e}^{x}=0$.</p>`}<p>Par somme, $\lim\limits_{x\to${zero}}f(x)=0$ : la droite d'équation $y=0$ est asymptote horizontale à $\mathcal{C}_f$ en $${zero}$.</p><p>$f$ est définie et continue sur $\mathbb{R}$ : $\mathcal{C}_f$ n'admet pas d'asymptote verticale.</p><p>$\boxed{\mathcal{C}_f\text{ admet une seule asymptote : la droite d'équation }y=0\text{ en }${zero}}$</p>`};
 }
 
 /* C5. Dérivée de e^{sx}(x^2+bx+c) */
@@ -628,7 +633,7 @@ function gDerPoly(c){
           : {t:m(R`f'(x)=\left(${poly2(1,b+2,cc)}\right)${ex}`), why:R`En développant $${ex}\left(${lin(2,b)}\right)$, il ne faut pas oublier le terme constant $${b}${ex}$.`},
       {t:m(R`f'(x)=\left(${sgnErr}\right)${ex}`), why:R`Attention au signe : $\left(${ex}\right)'=${up}$.`}],
     hint:R`J'applique la formule du cours $(uv)'=u'v+uv'$ avec $u(x)=${ex}$ et $v(x)=${P}$, puis je factorise par $${ex}$.`,
-    expl:R`J'applique la formule du cours $(uv)'=u'v+uv'$ avec $u(x)=${ex}$, $u'(x)=${up}$ (formule $(\mathrm{e}^{w})'=w'\mathrm{e}^{w}$), $v(x)=${P}$ et $v'(x)=${lin(2,b)}$. Donc $f'(x)=${s<0?'-':''}${ex}\left(${P}\right)+${ex}\left(${lin(2,b)}\right)=\left(${ok}\right)${ex}$.`};
+    expl:R`<p>J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$.</p><p>Pour tout réel $x$ :</p>$$\begin{aligned}f'(x)&=${s<0?'-':''}${ex}\left(${P}\right)+${ex}\left(${lin(2,b)}\right)\\ &=${ex}\left(${s<0?poly2(-1,-b,-cc):P}+2x${sg(b)}\right)\\ &=\boxed{\left(${ok}\right)${ex}}\end{aligned}$$`};
 }
 
 /* C6. Dérivée de (ax+b)e^{w(x)}, w du premier ou du second degré */
@@ -650,7 +655,7 @@ function gDerLin(){
       {t:m(R`f'(x)=\left(${miss}\right)${ex}`), why:R`$(uv)'=u'v+uv'$ : il manque le terme $u'v=${co(a)}${ex}$.`},
       {t:m(R`f'(x)=\left(${lin(a,a+b)}\right)${ex}`), why:R`$\left(${ex}\right)'=${vp}$ : il ne faut pas oublier le facteur $${wp}$.`}],
     hint:R`J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{w}\right)'=w'\mathrm{e}^{w}$.`,
-    expl:R`J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{w}\right)'=w'\mathrm{e}^{w}$, avec $u(x)=${u}$, $u'(x)=${a}$, $v(x)=${ex}$ et $v'(x)=${vp}$. Donc $f'(x)=${co(a)}${ex}+\left(${u}\right)\times${deg2?R`${cx(2*k)}\,${ex}`:R`\left(${co(k)}${ex}\right)`}=${dev}=\left(${ok}\right)${ex}$.`};
+    expl:R`<p>J'applique les formules du cours $(uv)'=u'v+uv'$ et $\left(\mathrm{e}^{u}\right)'=u'\mathrm{e}^{u}$.</p><p>Pour tout réel $x$ :</p>$$\begin{aligned}f'(x)&=${co(a)}${ex}+\left(${u}\right)\times${deg2?R`\left(${cx(2*k)}\,${ex}\right)`:R`\left(${co(k)}${ex}\right)`}\\ &=${dev}\\ &=\boxed{\left(${ok}\right)${ex}}\end{aligned}$$`};
 }
 
 /* C7. Variations de a x e^{-kx} */
@@ -673,6 +678,7 @@ function gVarXexp(){
 
 /* C8. Limite en +inf de la racine */
 function gLimRoot(s){
+  const BR=R`\left.\begin{aligned}`, ER=R`\end{aligned}\right\}`;
   const F=gRoot(s), {w,ew,u}=F;
   if(F.v===1) return { theme:'Limites',
     q:R`<p>Avec $f(x)=\sqrt{${u}}$ sur $\left[0\,;+\infty\right[$, que vaut $\displaystyle\lim_{x\to+\infty}f(x)$ ?</p>`,
@@ -682,7 +688,7 @@ function gLimRoot(s){
       {t:m(PINF), why:R`$${w}\to-\infty$, donc $${ew}\to0$ : l'expression sous la racine reste bornée.`},
       {t:`Pas de limite : c'est une forme indéterminée.`, why:`Il n'y a pas de forme indéterminée : chaque étape se fait par composition et somme.`}],
     hint:R`Cherche d'abord la limite de $${ew}$ par composition.`,
-    expl:R`$\lim\limits_{x\to+\infty}${w}=-\infty$ et $\lim\limits_{X\to-\infty}\mathrm{e}^{X}=0$, donc par composition $${ew}\to0$. Par somme, $${u}\to1$, et par composition avec la racine carrée, $f(x)\to\sqrt{1}=1$.`};
+    expl:R`$$${BR}&\lim_{x\to+\infty}${w}=-\infty\\ &\lim_{X\to-\infty}\mathrm{e}^{X}=0${ER}\ \text{Par composition :}\ \lim_{x\to+\infty}${ew}=0$$<p>Donc par somme, $\lim\limits_{x\to+\infty}${u}=1$.</p><p>Comme $\lim\limits_{X\to1}\sqrt{X}=1$, par composition $\boxed{\lim\limits_{x\to+\infty}f(x)=1}$.</p>`};
   return { theme:'Limites',
     q:R`<p>Avec $f(x)=\sqrt{${u}}$ sur $\left[0\,;+\infty\right[$, que vaut $\displaystyle\lim_{x\to+\infty}f(x)$ ?</p>`,
     opts:[
@@ -691,7 +697,7 @@ function gLimRoot(s){
       {t:m('0'), why:R`$${w}\to+\infty$, donc $${ew}\to+\infty$.`},
       {t:`Pas de limite : c'est une forme indéterminée.`, why:`Il n'y a pas de forme indéterminée : chaque étape se fait par composition et somme.`}],
     hint:R`Cherche d'abord la limite de $${ew}$ par composition.`,
-    expl:R`$\lim\limits_{x\to+\infty}${w}=+\infty$ et $\lim\limits_{X\to+\infty}\mathrm{e}^{X}=+\infty$, donc par composition $${ew}\to+\infty$. Par somme, $${u}\to+\infty$, et par composition avec la racine carrée, $f(x)\to+\infty$.`};
+    expl:R`$$${BR}&\lim_{x\to+\infty}${w}=+\infty\\ &\lim_{X\to+\infty}\mathrm{e}^{X}=+\infty${ER}\ \text{Par composition :}\ \lim_{x\to+\infty}${ew}=+\infty$$<p>Donc par somme, $\lim\limits_{x\to+\infty}${u}=+\infty$.</p><p>Comme $\lim\limits_{X\to+\infty}\sqrt{X}=+\infty$, par composition $\boxed{\lim\limits_{x\to+\infty}f(x)=+\infty}$.</p>`};
 }
 
 /* C9. Lecture graphique : nombre dérivé et tangente */
@@ -892,12 +898,12 @@ function safe(gen, ctx){
 function buildSet(){
   const g={t:pick(['A','B']), k:rint(1,3)}, s={v:pick([1,2]), k:rint(1,3)};
   let p, q; do { p=nz(-3,3); q=nz(-2,4); } while(q<=p || p+q===0);
-  const tg=mkTang();
+  const tg=mkTang(); tg.horiz=Math.random()<1/3;   /* une seule lecture graphique : tangente horizontale (1 fois sur 3) ou tangente (AB) */
   const c={p, q, s:pick([-1,-1,1]), deg2:Math.random()<.5};   /* deg2 : la question de dérivée porte sur le polynôme du second degré de la question précédente */
   return [gFormule, gDefCroiss, gTaux, gLimQuot, gAsymV, gExpCont, gCroiss,
           ()=>gDerSqrt(s), ()=>gLimRoot(s),
           ()=>gAsymPoly(c), ()=>(c.deg2 ? gDerPoly(c) : gDerLin()),
-          ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gFFF, ()=>gTangH(tg), ()=>gTangS(tg)].map(f=>safe(f));
+          ()=>gQuot(g), ()=>gLim0(g), gSqrtVar, gFFF, ()=>(tg.horiz ? gTangH(tg) : gTangS(tg))].map(f=>safe(f));
 }
 
 const LET = ["A","B","C","D"];
